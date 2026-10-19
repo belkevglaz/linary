@@ -1,0 +1,64 @@
+# Дополнение к стандартной конфигурации detekt (buildUponDefaultConfig = true).
+# Здесь только то, что отличается от умолчаний.
+
+config:
+  # Проверка имён отключена: часть правил detekt-formatting называется по-разному в разных версиях.
+  validation: false
+  warningsAsErrors: false
+
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 6
+    constructorThreshold: 8
+    ignoreDefaultParameters: true
+    ignoreDataClasses: true
+    # Composable-функции принимают много параметров по своей природе
+    ignoreAnnotated: ['Composable']
+  CyclomaticComplexMethod:
+    threshold: 15
+    ignoreSimpleWhenEntries: true
+  TooManyFunctions:
+    thresholdInFiles: 15
+    thresholdInClasses: 15
+    thresholdInObjects: 15
+    ignorePrivate: true
+
+naming:
+  FunctionNaming:
+    # Composable-функции называются с заглавной буквы
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][_A-Za-z0-9]*'
+
+style:
+  MagicNumber:
+    # Размеры и отступы интерфейса (dp, sp) — не «магические числа»
+    excludes: ['**/test/**', '**/*Test.kt', '**/ui/**']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+  ReturnCount:
+    max: 3
+    excludeGuardClauses: true
+  MaxLineLength:
+    maxLineLength: 120
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview']
+
+formatting:
+  active: true
+  android: false
+  autoCorrect: true
+  MaximumLineLength:
+    maxLineLength: 120
+  TrailingCommaOnCallSite:
+    active: true
+    useTrailingCommaOnCallSite: true
+  TrailingCommaOnDeclarationSite:
+    active: true
+    useTrailingCommaOnDeclarationSite: true
+  # ktlint function-naming не знает про @Composable — за именами следит naming>FunctionNaming
+  FunctionName:
+    active: false

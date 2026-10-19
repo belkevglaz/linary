@@ -1,0 +1,6 @@
+plugins {
+    kotlin("multiplatform") version "2.1.21" apply false
+    id("org.jetbrains.kotlin.plugin.compose") version "2.1.21" apply false
+    id("org.jetbrains.compose") version "1.8.2" apply false
+    id("io.gitlab.arturbosch.detekt") version "1.23.8" apply false
+}

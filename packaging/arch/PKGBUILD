@@ -1,0 +1,38 @@
+# Пакет для Arch/Manjaro, собирается из локального репозитория:
+#   cd packaging/arch && makepkg -si
+# Версия берётся из appVersion в gradle.properties.
+
+pkgname=linary
+pkgver=$(sed -n 's/^appVersion=//p' "${startdir:-.}/../../gradle.properties" 2>/dev/null)
+pkgver=${pkgver:-1.0.0}
+pkgrel=1
+pkgdesc="Journal app for Linux that works with a Diarium sync folder"
+arch=('x86_64')
+license=('MIT')
+depends=('hicolor-icon-theme' 'xdg-utils' 'libxext' 'libxrender' 'libxtst' 'libxi' 'fontconfig')
+optdepends=('kdialog: native file dialog on KDE'
+            'zenity: native file dialog on GNOME, XFCE and others')
+makedepends=('java-environment>=17')
+options=('!strip' '!debug')
+
+_root="$startdir/../.."
+
+build() {
+    cd "$_root"
+    ./gradlew --no-daemon :composeApp:createDistributable
+}
+
+package() {
+    local app="$_root/composeApp/build/compose/binaries/main/app/$pkgname"
+
+    install -d "$pkgdir/opt/$pkgname" "$pkgdir/usr/bin"
+    cp -a "$app/." "$pkgdir/opt/$pkgname/"
+    ln -s "/opt/$pkgname/bin/$pkgname" "$pkgdir/usr/bin/$pkgname"
+
+    install -Dm644 "$_root/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 "$_root/packaging/linux/$pkgname.desktop" "$pkgdir/usr/share/applications/$pkgname.desktop"
+    for size in 16 24 32 48 64 128 256 512; do
+        install -Dm644 "$_root/packaging/icons/$pkgname-$size.png" \
+            "$pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/$pkgname.png"
+    done
+}

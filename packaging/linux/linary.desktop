@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=Linary
+GenericName=Journal
+GenericName[ru]=Дневник
+Comment=Journal that works with a Diarium sync folder
+Comment[ru]=Дневник, работающий с папкой синхронизации Diarium
+Exec=linary
+Icon=linary
+Terminal=false
+Categories=Office;Utility;
+Keywords=diary;journal;dropbox;diarium;дневник;
+StartupWMClass=ru-b3lka-linary-desktop-MainKt

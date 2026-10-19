@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Linary</string>
+
+    <!-- Разделы -->
+    <string name="section_calendar">Календарь</string>
+    <string name="section_feed">Лента</string>
+    <string name="section_attachments">Вложения</string>
+    <string name="section_search">Поиск</string>
+    <string name="section_tags">Теги</string>
+    <string name="section_on_this_day">В этот день</string>
+
+    <!-- Действия -->
+    <string name="action_today">Сегодня</string>
+    <string name="action_reload">Обновить (Ctrl+R)</string>
+    <string name="action_choose_source">Выбрать источник</string>
+    <string name="action_toggle_theme">Сменить тему</string>
+    <string name="action_close">Закрыть</string>
+    <string name="action_clear">Очистить</string>
+    <string name="action_previous">Назад</string>
+    <string name="action_next">Вперёд</string>
+    <string name="action_open_entry">Открыть запись</string>
+    <string name="action_choose">Выбрать…</string>
+    <string name="action_retry">Повторить</string>
+    <string name="action_other_source">Другой источник…</string>
+
+    <!-- Состояние -->
+    <string name="status_loading">загрузка…</string>
+    <string name="status_read_only">%1$s · только чтение</string>
+
+    <!-- Приветствие и ошибки -->
+    <string name="welcome_text">Выберите папку синхронизации Diarium (обычно ~/Dropbox/Apps/Diarium) или файл резервной копии .diary.</string>
+    <string name="error_title">Не удалось открыть дневник</string>
+    <string name="source_sync_folder">Папка синхронизации: %1$s</string>
+    <string name="source_backup">Резервная копия: %1$s</string>
+    <string name="error_not_sync_folder">В папке нет файла v4_database. Это точно папка синхронизации Diarium?</string>
+    <string name="error_unsupported_version">Неподдерживаемый формат синхронизации: %1$s. Поддерживается только v4.</string>
+    <string name="error_decryption">Не удалось расшифровать дневник. Возможно, в Diarium включено сквозное шифрование (E2EE) — оно пока не поддерживается.</string>
+    <string name="error_key_missing">Не задан ключ синхронизации.</string>
+    <string name="settings_sync">Синхронизация</string>
+    <string name="sync_key_screen_title">Нужен ключ синхронизации</string>
+    <string name="sync_key_screen_text">Файлы в папке синхронизации зашифрованы. Ключ для них в программу не входит: укажите его один раз, и он сохранится в настройках этого компьютера.</string>
+    <string name="sync_key_label">Ключ синхронизации</string>
+    <string name="sync_key_supporting">%1$d символов · введено %2$d</string>
+    <string name="sync_key_invalid">Ключ — это %1$d символов: латинские буквы, цифры и знаки.</string>
+    <string name="sync_key_wrong">Ключ не подходит к этой папке. Возможно, в нём опечатка — или на телефоне включено сквозное шифрование (E2EE), которое не поддерживается.</string>
+    <string name="sync_key_save">Сохранить</string>
+    <string name="sync_key_section">Ключ синхронизации</string>
+    <string name="sync_key_set">Ключ задан.</string>
+    <string name="sync_key_not_set">Ключ не задан — папку синхронизации не открыть.</string>
+    <string name="sync_key_hint">Ключ хранится только в настройках на этом компьютере и нигде не показывается. Новый ключ заменяет прежний.</string>
+    <string name="sync_key_clear">Удалить ключ</string>
+    <string name="error_not_diary">Это не база Diarium.</string>
+    <string name="error_unknown_format">Неизвестный формат файла.</string>
+    <string name="error_io">Ошибка чтения: %1$s</string>
+    <string name="error_unexpected">Непредвиденная ошибка: %1$s. Сообщите, пожалуйста, как её воспроизвести.</string>
+
+    <!-- Записи -->
+    <string name="entry_none_for_day">Нет записи за этот день</string>
+    <string name="entries_empty">Записей нет</string>
+    <string name="search_placeholder">Текст или тег</string>
+    <string name="search_prompt">Введите текст для поиска</string>
+    <string name="search_nothing_found">Ничего не найдено</string>
+    <string name="search_found">Найдено: %1$s</string>
+    <string name="tags_none">Тегов нет</string>
+    <string name="tags_choose">Выберите тег</string>
+    <string name="tags_no_entries">Записей с этим тегом нет</string>
+    <string name="on_this_day_subtitle">Записи этого дня в прошлые годы</string>
+    <string name="on_this_day_empty">В этот день в прошлые годы записей нет</string>
+    <string name="attachments_empty">Вложений нет</string>
+    <string name="media_video">Видео</string>
+    <string name="media_audio">Аудио</string>
+
+    <!-- Выбор файла -->
+    <string name="chooser_title">Diarium: v4_database в папке синхронизации или резервная копия .diary</string>
+    <string name="chooser_filter">Diarium (v4_database, *.diary)</string>
+
+    <!-- Редактор -->
+    <string name="action_edit">Редактировать</string>
+    <string name="action_new_entry">Новая запись</string>
+    <string name="action_write">Написать</string>
+    <string name="action_save">Сохранить (Ctrl+S)</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_apply">Применить</string>
+    <string name="action_discard">Не сохранять</string>
+    <string name="action_keep_editing">Продолжить</string>
+    <string name="editor_placeholder">Текст</string>
+    <string name="editor_saving">Сохранение…</string>
+    <string name="editor_rating">Оценка</string>
+    <string name="editor_clear_rating">Убрать оценку</string>
+    <string name="editor_discard_title">Не сохранять изменения?</string>
+    <string name="editor_discard_text">Изменения в этой записи будут потеряны.</string>
+    <string name="format_list">Маркированный список</string>
+    <string name="format_bold">Жирный</string>
+    <string name="format_italic">Курсив</string>
+    <string name="format_underline">Подчёркнутый</string>
+    <string name="format_strikethrough">Зачёркнутый</string>
+    <string name="format_highlight">Выделение маркером</string>
+    <string name="format_text_color">Цвет текста</string>
+    <string name="format_link">Ссылка</string>
+    <string name="format_redo">Повторить</string>
+    <string name="format_undo">Отменить</string>
+    <string name="format_no_color">Без цвета</string>
+    <string name="link_title">Ссылка</string>
+    <string name="link_text">Текст</string>
+    <string name="link_url">Адрес</string>
+    <string name="link_remove">Убрать ссылку</string>
+    <string name="save_error_title">Не удалось изменить дневник</string>
+    <string name="error_write_read_only">Этот источник только для чтения. Чтобы править записи, откройте папку синхронизации.</string>
+    <string name="error_write_conflict">Пока вы редактировали, эта запись изменилась на другом устройстве. Можно сохранить свою версию поверх неё или закрыть сообщение и сначала скопировать текст — он остался в редакторе.</string>
+    <string name="action_save_anyway">Сохранить мою версию</string>
+    <string name="error_write_verification">Сохранённый файл не прошёл проверку, поэтому восстановлена предыдущая версия из резервной копии: %1$s</string>
+    <string name="error_write_io">Ошибка записи: %1$s</string>
+
+    <string name="action_insert_time">Вставить время</string>
+    <string name="action_delete">Удалить</string>
+    <string name="media_add">Добавить фото (или вставить скриншот: Ctrl+V)</string>
+    <string name="media_remove">Убрать</string>
+    <string name="media_section">Вложения: %1$d</string>
+    <string name="action_collapse">Свернуть</string>
+    <string name="action_expand">Развернуть</string>
+    <string name="media_download">Скачать</string>
+    <string name="media_save_title">Сохранить фото</string>
+    <string name="media_set_cover">Сделать обложкой дня</string>
+    <string name="media_cover">Обложка</string>
+    <string name="media_move_left">Переместить влево</string>
+    <string name="media_move_right">Переместить вправо</string>
+    <string name="media_actions">Действия с фото</string>
+    <string name="media_attach_failed">Не удалось добавить как картинку файлов: %1$d</string>
+    <string name="media_chooser_title">Добавить фото</string>
+    <string name="media_chooser_filter">Изображения (jpg, png, gif, bmp, webp)</string>
+    <string name="delete_title">Удалить запись?</string>
+    <string name="delete_text">Запись от %1$s будет удалена из дневника. Отменить это в приложении нельзя, но резервная копия базы сохраняется.</string>
+    <string name="editor_more">Ещё</string>
+
+    <plurals name="entries_count">
+        <item quantity="one">%1$d запись</item>
+        <item quantity="few">%1$d записи</item>
+        <item quantity="many">%1$d записей</item>
+        <item quantity="other">%1$d записи</item>
+    </plurals>
+
+    <!-- Даты. В шаблонах используются {day}, {month}, {year} -->
+    <string name="pattern_month_year">{month} {year}</string>
+    <string name="pattern_day_month">{day} {month}</string>
+    <string name="pattern_long_date">{day} {month} {year}</string>
+
+    <string-array name="months_nominative">
+        <item>январь</item>
+        <item>февраль</item>
+        <item>март</item>
+        <item>апрель</item>
+        <item>май</item>
+        <item>июнь</item>
+        <item>июль</item>
+        <item>август</item>
+        <item>сентябрь</item>
+        <item>октябрь</item>
+        <item>ноябрь</item>
+        <item>декабрь</item>
+    </string-array>
+    <string-array name="months_genitive">
+        <item>января</item>
+        <item>февраля</item>
+        <item>марта</item>
+        <item>апреля</item>
+        <item>мая</item>
+        <item>июня</item>
+        <item>июля</item>
+        <item>августа</item>
+        <item>сентября</item>
+        <item>октября</item>
+        <item>ноября</item>
+        <item>декабря</item>
+    </string-array>
+    <string-array name="weekdays_short">
+        <item>пн</item>
+        <item>вт</item>
+        <item>ср</item>
+        <item>чт</item>
+        <item>пт</item>
+        <item>сб</item>
+        <item>вс</item>
+    </string-array>
+    <string-array name="weekdays_full">
+        <item>понедельник</item>
+        <item>вторник</item>
+        <item>среда</item>
+        <item>четверг</item>
+        <item>пятница</item>
+        <item>суббота</item>
+        <item>воскресенье</item>
+    </string-array>
+    <string name="action_settings">Настройки</string>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_lock_section">Блокировка</string>
+    <string name="settings_lock_enable">Блокировать при бездействии</string>
+    <string name="settings_lock_hint">Если ничего не делать заданное время, окно закроется экраном блокировки, открыть который можно только PIN-кодом. Приложение тоже запускается заблокированным. Это защита от посторонних глаз за вашим компьютером, файлы дневника на диске она не шифрует.</string>
+    <string name="settings_lock_timeout">Блокировать через</string>
+    <string name="settings_minutes">%1$d мин</string>
+    <string name="settings_lock_style">Экран блокировки</string>
+    <string name="lock_style_solid">Сплошной</string>
+    <string name="lock_style_blurred">Размытый</string>
+    <string name="settings_blur">Размытие: %1$d</string>
+    <string name="settings_lock_collapse_photos">Сворачивать фото при блокировке</string>
+    <string name="settings_window_section">Окно</string>
+    <string name="settings_tray">Значок в системном трее</string>
+    <string name="settings_tray_unsupported">Рабочий стол не показывает значки в трее.</string>
+    <string name="settings_close_keeps_running">Закрытие окна не завершает приложение</string>
+    <string name="settings_close_hint">Со значком в трее окно прячется в трей, без него — сворачивается. Выйти: Ctrl+Q, меню значка в трее или пункт «Выйти» в списке слева.</string>
+    <string name="action_quit">Выйти</string>
+    <string name="tray_open">Открыть</string>
+    <string name="settings_pin_section">PIN-код</string>
+    <string name="settings_lock_screen_hint">Эти настройки действуют, когда блокировка включена (страница «Блокировка»).</string>
+    <string name="settings_photos_section">Фото</string>
+    <string name="settings_appearance">Оформление</string>
+    <string name="settings_theme">Тема</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="settings_tray_section">Системный трей</string>
+    <string name="settings_close_section">Закрытие окна</string>
+    <string name="settings_change_pin">Сменить PIN</string>
+    <string name="settings_lock_now">Заблокировать сейчас (Ctrl+L)</string>
+    <string name="settings_about_section">О программе</string>
+    <string name="settings_version">Версия %1$s</string>
+    <string name="settings_version_dev">сборка для разработки</string>
+    <string name="pin_create_title">Задайте PIN</string>
+    <string name="pin_change_title">Смена PIN</string>
+    <string name="pin_disable_title">Отключить блокировку</string>
+    <string name="pin_current">Текущий PIN</string>
+    <string name="pin_new">Новый PIN, 4–8 цифр</string>
+    <string name="pin_repeat">Повторите новый PIN</string>
+    <string name="pin_invalid">PIN — от 4 до 8 цифр.</string>
+    <string name="pin_mismatch">PIN-коды не совпадают.</string>
+    <string name="pin_wrong">Неверный PIN.</string>
+    <string name="pin_forget_hint">Если забудете PIN — см. «Забыли PIN» в README.</string>
+    <string name="lock_title">Дневник заблокирован</string>
+    <string name="lock_prompt">PIN</string>
+    <string name="lock_unlock">Разблокировать</string>
+    <string name="lock_wait">Слишком много попыток. Повторите через %1$d с.</string>
+</resources>

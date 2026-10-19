@@ -1,0 +1,12 @@
+.gradle/
+build/
+.kotlin/
+.idea/
+*.iml
+local.properties
+
+# makepkg
+packaging/arch/src/
+packaging/arch/pkg/
+packaging/arch/*.pkg.tar.*
+/commit.sh

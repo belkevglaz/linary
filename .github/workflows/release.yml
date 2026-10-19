@@ -1,0 +1,127 @@
+# Релиз по тегу vX.Y.Z: сборка пакетов и публикация GitHub Release.
+# Текст релиза берётся из раздела «## X.Y.Z» в CHANGES.md.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  # Быстрые проверки до долгой сборки: версия в теге, gradle.properties и CHANGES.md совпадают
+  prepare:
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check version
+        id: version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          app=$(sed -n 's/^appVersion=//p' gradle.properties)
+          if [ "$tag" != "$app" ]; then
+            echo "::error::Tag v$tag does not match appVersion=$app in gradle.properties"
+            exit 1
+          fi
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Check release notes
+        run: bash packaging/release/release-notes.sh "${{ steps.version.outputs.version }}" > /dev/null
+
+  # AppImage, tar.gz, deb, rpm. Ubuntu 22.04 — ради совместимости со старыми glibc
+  build:
+    needs: prepare
+    runs-on: ubuntu-22.04
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Packaging tools
+        run: sudo apt-get update && sudo apt-get install -y rpm fakeroot
+
+      - name: Tests
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon desktopTest
+
+      - name: Build
+        run: ./gradlew --no-daemon createDistributable packageDeb packageRpm
+
+      - name: Collect packages
+        run: |
+          bin=composeApp/build/compose/binaries/main
+          mkdir -p dist
+          tar -C "$bin/app" -czf "dist/linary-$VERSION-x86_64.tar.gz" linary
+          mv "$bin"/deb/*.deb "dist/linary_${VERSION}_amd64.deb"
+          mv "$bin"/rpm/*.rpm "dist/linary-$VERSION-1.x86_64.rpm"
+          bash packaging/appimage/build-appimage.sh "$VERSION" dist
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-linux
+          path: dist/*
+          if-no-files-found: error
+
+  # Пакет pacman для Arch / Manjaro — собирается в контейнере Arch тем же PKGBUILD
+  arch:
+    needs: prepare
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - name: Tools
+        run: pacman -Syu --noconfirm --needed git jdk21-openjdk
+
+      - uses: actions/checkout@v4
+
+      - name: makepkg
+        run: |
+          useradd -m builder
+          chown -R builder "$GITHUB_WORKSPACE"
+          chmod +x gradlew
+          cd packaging/arch
+          sudo -u builder env JAVA_HOME=/usr/lib/jvm/java-21-openjdk makepkg -f --nodeps --noconfirm
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          mv ./*.pkg.tar.zst "$GITHUB_WORKSPACE/dist/"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-arch
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    needs: [prepare, build, arch]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish
+        run: |
+          (cd dist && sha256sum * > SHA256SUMS)
+          bash packaging/release/release-notes.sh "$VERSION" > notes.md
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "v$VERSION" \
+            --notes-file notes.md
