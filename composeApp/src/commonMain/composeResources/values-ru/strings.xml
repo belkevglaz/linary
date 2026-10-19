@@ -11,6 +11,10 @@
     <string name="section_on_this_day">В этот день</string>
 
     <!-- Действия -->
+    <string name="pane_hide_calendar">Скрыть календарь</string>
+    <string name="pane_show_calendar">Показать календарь</string>
+    <string name="pane_hide_list">Скрыть список</string>
+    <string name="pane_show_list">Показать список</string>
     <string name="action_today">Сегодня</string>
     <string name="action_reload">Обновить (Ctrl+R)</string>
     <string name="action_choose_source">Выбрать источник</string>

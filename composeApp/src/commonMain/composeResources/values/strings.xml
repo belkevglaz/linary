@@ -11,6 +11,10 @@
     <string name="section_on_this_day">On this day</string>
 
     <!-- Actions -->
+    <string name="pane_hide_calendar">Hide calendar</string>
+    <string name="pane_show_calendar">Show calendar</string>
+    <string name="pane_hide_list">Hide list</string>
+    <string name="pane_show_list">Show list</string>
     <string name="action_today">Today</string>
     <string name="action_reload">Refresh (Ctrl+R)</string>
     <string name="action_choose_source">Choose source</string>

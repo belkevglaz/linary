@@ -1,6 +1,7 @@
 package ru.b3lka.linary.desktop.settings
 
 import ru.b3lka.linary.desktop.APP_ID
+import ru.b3lka.linary.presentation.layout.ListPanePreferences
 import ru.b3lka.linary.presentation.lock.LockController
 import ru.b3lka.linary.presentation.lock.LockPreferences
 import ru.b3lka.linary.presentation.lock.LockStyle
@@ -13,7 +14,12 @@ import java.util.prefs.Preferences
  * Настройки приложения в `java.util.prefs` (на Linux — `~/.java/.userPrefs/linary/prefs.xml`).
  * PIN блокировки хранится только хэшем ([PinHash]).
  */
-class AppSettings : LockPreferences, PhotoStripPreferences, WindowPreferences, SyncKeyPreferences {
+class AppSettings :
+    LockPreferences,
+    PhotoStripPreferences,
+    WindowPreferences,
+    SyncKeyPreferences,
+    ListPanePreferences {
     private val prefs: Preferences = Preferences.userRoot().node(APP_ID)
 
     var source: String?
@@ -79,6 +85,13 @@ class AppSettings : LockPreferences, PhotoStripPreferences, WindowPreferences, S
             flush()
         }
 
+    override var listPaneVisible: Boolean
+        get() = prefs.getBoolean(KEY_LIST_PANE, true)
+        set(value) {
+            prefs.putBoolean(KEY_LIST_PANE, value)
+            flush()
+        }
+
     override var trayIcon: Boolean
         get() = prefs.getBoolean(KEY_TRAY_ICON, true)
         set(value) {
@@ -138,6 +151,7 @@ class AppSettings : LockPreferences, PhotoStripPreferences, WindowPreferences, S
         const val KEY_LOCK_COLLAPSE_PHOTOS = "lock.collapsePhotos"
         const val KEY_PHOTOS_EXPANDED = "media.expanded"
         const val KEY_TRAY_ICON = "window.trayIcon"
+        const val KEY_LIST_PANE = "layout.listPane"
         const val KEY_SYNC_KEY = "sync.key"
         const val KEY_CLOSE_KEEPS_RUNNING = "window.closeKeepsRunning"
     }

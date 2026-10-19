@@ -1,5 +1,8 @@
 package ru.b3lka.linary.ui.app
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -26,6 +30,7 @@ import ru.b3lka.linary.resources.search_prompt
 import ru.b3lka.linary.resources.tags_choose
 import ru.b3lka.linary.resources.tags_no_entries
 import ru.b3lka.linary.ui.calendar.CalendarView
+import ru.b3lka.linary.ui.common.LocalListPane
 import ru.b3lka.linary.ui.editor.EntryEditor
 import ru.b3lka.linary.ui.entry.EntryDetail
 import ru.b3lka.linary.ui.entry.EntryList
@@ -35,8 +40,8 @@ import ru.b3lka.linary.ui.sections.SearchHeader
 import ru.b3lka.linary.ui.sections.TagsHeader
 
 /**
- * Содержимое выбранного раздела: слева календарь или лента, справа открытая запись.
- * «Вложения» занимают всю ширину.
+ * Содержимое выбранного раздела: слева календарь или лента (её можно скрыть, см. [LocalListPane]),
+ * справа открытая запись. «Вложения» занимают всю ширину.
  */
 @Composable
 internal fun SectionContent(state: AppState) {
@@ -50,24 +55,34 @@ internal fun SectionContent(state: AppState) {
         )
         return
     }
+    val paneVisible = LocalListPane.current?.visible ?: true
     Row(Modifier.fillMaxSize()) {
-        Column(Modifier.width(470.dp).fillMaxHeight().background(colors.surfaceContainerLowest)) {
-            if (state.section == Section.Calendar) {
-                CalendarView(
-                    diary = state.diary,
-                    months = state.calendarMonths,
-                    selected = state.selectedDate,
-                    today = state.today,
-                    onSelect = { state.selectDate(it) },
-                    modifier = Modifier.fillMaxSize(),
-                    onPickEntry = { state.selectEntry(it) },
-                    onNewEntry = if (state.canEdit) ({ state.editing.startNewEntry(it) }) else null,
-                )
-            } else {
-                EntriesPane(state)
+        // Левая панель выезжает и прячется, как выдвижное меню; запись при этом занимает всю ширину
+        AnimatedVisibility(
+            visible = paneVisible,
+            enter = expandHorizontally(expandFrom = Alignment.Start),
+            exit = shrinkHorizontally(shrinkTowards = Alignment.Start),
+        ) {
+            Row {
+                Column(Modifier.width(470.dp).fillMaxHeight().background(colors.surfaceContainerLowest)) {
+                    if (state.section == Section.Calendar) {
+                        CalendarView(
+                            diary = state.diary,
+                            months = state.calendarMonths,
+                            selected = state.selectedDate,
+                            today = state.today,
+                            onSelect = { state.selectDate(it) },
+                            modifier = Modifier.fillMaxSize(),
+                            onPickEntry = { state.selectEntry(it) },
+                            onNewEntry = if (state.canEdit) ({ state.editing.startNewEntry(it) }) else null,
+                        )
+                    } else {
+                        EntriesPane(state)
+                    }
+                }
+                Box(Modifier.width(1.dp).fillMaxHeight().background(colors.outlineVariant))
             }
         }
-        Box(Modifier.width(1.dp).fillMaxHeight().background(colors.outlineVariant))
         val editing = state.editing
         val editor = editing.editor
         if (editor != null) {

@@ -164,6 +164,7 @@ Otherwise, click the folder button and pick the `v4_database` file inside your s
 | Main window | `Ctrl+N` | New entry |
 | | `Ctrl+R` | Reload |
 | | `Ctrl+F` | Search |
+| | `Ctrl+\` | Hide / show the calendar or list |
 | | `PgUp` / `PgDn` | Previous / next entry |
 | Anywhere | `Ctrl+L` | Lock now (when the lock is turned on) |
 | | `Ctrl+Q` | Quit |

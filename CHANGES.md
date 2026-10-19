@@ -8,6 +8,11 @@
 Сборка на GitHub проверит, что версия в теге, gradle.properties и здесь совпадает.
 -->
 
+## 2.1.0 — 2026-10-19
+
+- The calendar (or the list of entries in other sections) can be hidden like a navigation drawer, so the
+  entry takes the whole window: the button at the left of the top bar or `Ctrl+\`. The choice is remembered.
+
 ## 2.0.0 — 2026-10-19
 
 - New name: **Linary** (was "Diarium for Linux"). The command, packages and menu entry are now `linary`.

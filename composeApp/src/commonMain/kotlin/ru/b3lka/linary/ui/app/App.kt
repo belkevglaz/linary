@@ -25,6 +25,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
@@ -38,6 +39,8 @@ import org.jetbrains.compose.resources.stringResource
 import ru.b3lka.linary.core.repository.DiaryLoadException
 import ru.b3lka.linary.core.repository.DiaryRepository
 import ru.b3lka.linary.presentation.editor.ShortcutKeys
+import ru.b3lka.linary.presentation.layout.ListPanePreferences
+import ru.b3lka.linary.presentation.layout.ListPaneState
 import ru.b3lka.linary.presentation.lock.LockController
 import ru.b3lka.linary.presentation.lock.LockStyle
 import ru.b3lka.linary.presentation.media.MediaActions
@@ -53,6 +56,7 @@ import ru.b3lka.linary.resources.Res
 import ru.b3lka.linary.resources.media_save_title
 import ru.b3lka.linary.ui.common.LocalAppLocked
 import ru.b3lka.linary.ui.common.LocalDateFormatter
+import ru.b3lka.linary.ui.common.LocalListPane
 import ru.b3lka.linary.ui.common.LocalMediaActions
 import ru.b3lka.linary.ui.common.LocalMediaCache
 import ru.b3lka.linary.ui.common.LocalPhotoStrip
@@ -82,6 +86,7 @@ fun App(
     platform: PlatformServices,
     lock: LockController,
     photoPreferences: PhotoStripPreferences,
+    listPanePreferences: ListPanePreferences,
     windowBehavior: WindowBehavior?,
     syncKeys: SyncKeySettings?,
     dark: Boolean,
@@ -89,6 +94,7 @@ fun App(
     onChooseSource: () -> Unit,
 ) {
     val photoStrip = remember(photoPreferences) { PhotoStripState(photoPreferences) }
+    val listPane = remember(listPanePreferences) { ListPaneState(listPanePreferences) }
     LaunchedEffect(lock.locked) {
         if (lock.locked && lock.collapsePhotos) photoStrip.collapse()
     }
@@ -103,6 +109,7 @@ fun App(
             LocalDateFormatter provides rememberDateFormatter(),
             LocalAppLocked provides lock.locked,
             LocalPhotoStrip provides photoStrip,
+            LocalListPane provides listPane,
         ) {
             Box(Modifier.fillMaxSize().trackActivity(lock::onActivity)) {
                 val blur = if (lock.locked && lock.style == LockStyle.Blurred) lock.blurRadius.dp else 0.dp
@@ -183,13 +190,14 @@ private fun DiaryScreen(
         if (lock.locked && lock.collapsePhotos) state.viewer = null
     }
 
+    val listPane = LocalListPane.current
     CompositionLocalProvider(LocalMediaActions provides mediaActions) {
         Box(
             Modifier
                 .fillMaxSize()
                 .focusRequester(rootFocus)
                 .focusable()
-                .onPreviewKeyEvent { handleShortcut(it, state, reload, settingsOpen) },
+                .onPreviewKeyEvent { togglePane(it, listPane) || handleShortcut(it, state, reload, settingsOpen) },
         ) {
             Row(Modifier.fillMaxSize()) {
                 NavigationPanel(
@@ -333,6 +341,15 @@ private fun DiaryDialogs(state: AppState, scope: CoroutineScope) {
  * Ctrl+L и Ctrl+Q обрабатывает окно (LinaryApplication), чтобы они работали при любом фокусе.
  * Ctrl-сочетания работают и в русской раскладке (см. [ShortcutKeys]).
  */
+/**
+ * `Ctrl+\` — скрыть или показать левую панель; работает и в редакторе.
+ */
+private fun togglePane(event: KeyEvent, pane: ListPaneState?): Boolean {
+    if (pane == null || !event.isCtrlPressed || event.key != Key.Backslash) return false
+    if (event.type == KeyEventType.KeyDown) pane.toggle()
+    return event.type != KeyEventType.KeyUp
+}
+
 private fun handleShortcut(
     event: KeyEvent,
     state: AppState,

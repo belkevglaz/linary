@@ -157,6 +157,7 @@ fun ApplicationScope.LinaryApplication(initialSource: String?, instance: SingleI
             platform = platform,
             lock = lock,
             photoPreferences = settings,
+            listPanePreferences = settings,
             windowBehavior = behavior,
             syncKeys = syncKeys,
             dark = dark,
