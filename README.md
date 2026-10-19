@@ -47,11 +47,23 @@
 - Diarium on another device with **Dropbox sync** turned on, and the Dropbox desktop client syncing
   the `Apps/Diarium` folder to this computer.
 - **End-to-end encryption (E2EE) must be off** in Diarium: E2EE sync is not supported yet.
-- **The sync key.** The files in the sync folder are encrypted, and the key is not included in Linary.
-  On first start Linary asks for it; it can be changed later in **Settings → Sync**.
+- **The sync key** — see below.
 - Optional: `kdialog` (KDE) or `zenity` (GNOME, XFCE, ...) for native file dialogs.
 
 A `.diary` backup file can also be opened, read-only.
+
+## Sync key
+
+The files in a Diarium sync folder are encrypted. **The key is not included in Linary**, and this project
+does not provide it or explain how to obtain it: the developer of Diarium asked for that, and Linary
+respects it. Please do not ask for the key in Issues — such requests will be closed.
+
+Without the key Linary cannot open the sync folder. If you already have the key, enter it on the
+screen Linary shows on first start, or later in **Settings → Sync**. It is stored only in Linary's
+settings on your computer (`~/.java/.userPrefs/linary`) and is never shown again.
+
+Without a key you can still open a `.diary` backup exported from Diarium, if the backup is not
+encrypted. Backups are read-only, so changes cannot be made or synced to the phone that way.
 
 ## Installation
 
