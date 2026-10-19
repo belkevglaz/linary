@@ -16,11 +16,14 @@
 
 <p align="center"><a href="README.ru.md">Русская версия</a> · <a href="CHANGES.md">Changes</a></p>
 
-> [!IMPORTANT]
-> Linary is an independent project. It is not affiliated with, endorsed by or supported by the developer
-> of Diarium; "Diarium" is mentioned only to say which sync folder Linary works with. Please do not contact
-> the Diarium developer about Linary — report problems here, in [Issues](https://github.com/belkevglaz/linary/issues).
-> Keep backups of your diary (see [Safety](#safety)).
+## Disclaimer
+
+Linary is an independent project. It is not affiliated with, endorsed by or supported by the developer
+of Diarium; "Diarium" is mentioned only to say which sync folder Linary works with.
+
+Linary is provided **as is**, without warranty of any kind (see the [license](LICENSE)). You use it at your
+own risk: the author is not responsible for lost or damaged diary entries or any other damage. Keep
+backups of your diary (see [Safety](#safety)).
 
 ## Features
 
