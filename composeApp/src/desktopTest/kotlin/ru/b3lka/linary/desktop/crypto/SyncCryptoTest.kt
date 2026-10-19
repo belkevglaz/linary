@@ -41,4 +41,3 @@ class SyncCryptoTest {
  * Ключ только для тестов — не настоящий ключ синхронизации.
  */
 const val TEST_SYNC_KEY = "test-key-0123456789-abcdefghijkl"
-
