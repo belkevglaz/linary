@@ -28,11 +28,12 @@ backups of your diary (see [Safety](#safety)).
 ## Features
 
 - **Calendar** with photo thumbnails, days with several entries, today marker.
-- **Feed, Search, Tags, "On this day"** and an **Attachments** gallery.
+- **Feed, Search, Tags, "On this day"** and an **Attachments** gallery. Tags are shown in their colors;
+  new tags can be created and existing ones renamed or recolored.
 - **Viewer**: formatted text, clickable links, photos, tags, rating, location; full-screen photo viewer.
 - **Editor** close to the phone app:
   - rich text — bold, italic, underline, strikethrough, lists, text and highlight colors, links;
-  - rating, "Insert time" (`Ctrl+T`), undo/redo;
+  - rating, tags (the tag button in the editor header, with "New tag…"), "Insert time" (`Ctrl+T`), undo/redo;
   - several entries per day, new entries, deleting with confirmation.
 - **Photos**: add from files, paste a screenshot with `Ctrl+V` or drag and drop. Images are resized
   and saved as JPEG the same way the phone does it. Reorder photos, make one the day cover (the
@@ -261,8 +262,8 @@ The app then starts unlocked, with the lock turned off. Your other settings and 
 - E2EE sync is not supported.
 - Only tested with Dropbox. Other cloud providers that sync the same folder to disk may work but
   are untested.
-- Editing covers text, rating and photos. Headings, tags, location and templates are shown but not
-  editable yet.
+- Editing covers text, rating, photos and tags. Values of tracking tags, headings, location and templates
+  are shown but not editable.
 - On Wayland the window manager may ignore the saved window position (the size is still restored).
 
 ## License

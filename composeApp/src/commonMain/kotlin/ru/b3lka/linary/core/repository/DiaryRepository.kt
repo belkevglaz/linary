@@ -6,6 +6,7 @@ import ru.b3lka.linary.core.model.Diary
 import ru.b3lka.linary.core.model.DiaryEntry
 import ru.b3lka.linary.core.model.DiaryMedia
 import ru.b3lka.linary.core.model.EntryChange
+import ru.b3lka.linary.core.model.TagChange
 
 /**
  * Источник данных дневника (папка синхронизации, бэкап `.diary`, ...).
@@ -54,5 +55,13 @@ interface DiaryRepository {
      * @throws DiaryWriteException если удалить не удалось; источник при этом не меняется.
      */
     suspend fun deleteEntry(entry: DiaryEntry): Unit =
+        throw DiaryWriteException(DiaryWriteException.Reason.ReadOnly)
+
+    /**
+     * Создаёт тег или меняет название и цвет существующего; возвращает идентификатор тега.
+     *
+     * @throws DiaryWriteException если сохранить не удалось; источник при этом не меняется.
+     */
+    suspend fun saveTag(change: TagChange): Long =
         throw DiaryWriteException(DiaryWriteException.Reason.ReadOnly)
 }

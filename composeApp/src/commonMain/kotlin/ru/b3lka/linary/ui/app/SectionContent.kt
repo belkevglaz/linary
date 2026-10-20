@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -31,6 +32,7 @@ import ru.b3lka.linary.resources.tags_choose
 import ru.b3lka.linary.resources.tags_no_entries
 import ru.b3lka.linary.ui.calendar.CalendarView
 import ru.b3lka.linary.ui.common.LocalListPane
+import ru.b3lka.linary.ui.editor.EditorTagSource
 import ru.b3lka.linary.ui.editor.EntryEditor
 import ru.b3lka.linary.ui.entry.EntryDetail
 import ru.b3lka.linary.ui.entry.EntryList
@@ -77,7 +79,7 @@ internal fun SectionContent(state: AppState) {
                             onNewEntry = if (state.canEdit) ({ state.editing.startNewEntry(it) }) else null,
                         )
                     } else {
-                        EntriesPane(state)
+                        EntriesPane(state, scope)
                     }
                 }
                 Box(Modifier.width(1.dp).fillMaxHeight().background(colors.outlineVariant))
@@ -94,6 +96,7 @@ internal fun SectionContent(state: AppState) {
                 onClose = { editing.cancelEditing() },
                 modifier = Modifier.weight(1f).background(colors.surface),
                 onDelete = editor.original?.let { entry -> { editing.requestDelete(entry) } },
+                tags = EditorTagSource(state.diary?.tags.orEmpty()) { change -> editing.saveTag(change) },
             )
         } else {
             EntryDetail(
@@ -112,11 +115,16 @@ internal fun SectionContent(state: AppState) {
 }
 
 @Composable
-private fun ColumnScope.EntriesPane(state: AppState) {
+private fun ColumnScope.EntriesPane(state: AppState, scope: CoroutineScope) {
     val listed = state.listedEntries
     when (state.section) {
         Section.Search -> SearchHeader(state.query, { state.query = it }, listed.size)
-        Section.Tags -> TagsHeader(state.diary, state.tagFilter) { state.tagFilter = it }
+        Section.Tags -> TagsHeader(
+            state.diary,
+            state.tagFilter,
+            onSelect = { state.tagFilter = it },
+            onSaveTag = if (state.canEdit) ({ change -> scope.launch { state.editing.saveTag(change) } }) else null,
+        )
         Section.OnThisDay -> OnThisDayHeader(state.today)
         else -> Unit
     }

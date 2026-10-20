@@ -15,6 +15,7 @@ import ru.b3lka.linary.core.model.Diary
 import ru.b3lka.linary.core.model.DiaryEntry
 import ru.b3lka.linary.core.model.DiaryMedia
 import ru.b3lka.linary.core.model.EntryChange
+import ru.b3lka.linary.core.model.TagChange
 import ru.b3lka.linary.core.repository.DiaryLoadException
 import ru.b3lka.linary.core.repository.DiaryRepository
 import ru.b3lka.linary.core.repository.DiarySource
@@ -114,7 +115,9 @@ class SyncFolderRepository(
         val media = SqliteEntryWriter.mediaIds(file, id)
         val order = change.mediaOrder
         val orderOk = order == null || media.filter { it in order } == order.filter { it in media }
-        return orderOk && change.addedMedia.all { it.id in media } && change.removedMediaIds.none { it in media }
+        val tagsOk = change.tagIds == null || SqliteEntryWriter.tagIds(file, id) == change.tagIds
+        val mediaOk = change.addedMedia.all { it.id in media } && change.removedMediaIds.none { it in media }
+        return orderOk && tagsOk && mediaOk
     }
 
     override suspend fun deleteEntry(entry: DiaryEntry) {
@@ -126,6 +129,17 @@ class SyncFolderRepository(
                         verify = { file, _ -> !SqliteEntryWriter.exists(file, entry.id) },
                     )
                 }
+            }
+        }
+    }
+
+    override suspend fun saveTag(change: TagChange): Long = writeLock.withLock {
+        withContext(Dispatchers.IO) {
+            writingDiary {
+                modify(
+                    change = { SqliteTagWriter.apply(it, change) },
+                    verify = { file, id -> SqliteTagWriter.contains(file, id, change) },
+                )
             }
         }
     }

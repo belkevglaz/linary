@@ -66,3 +66,33 @@ internal val LightColors: ColorScheme = lightColorScheme(
     inverseSurface = Color(0xFF2B3133),
     inverseOnSurface = Color(0xFFECF2F3),
 )
+
+/**
+ * Цвета, которые можно выбрать для тега (сохраняются в формате Diarium `#AARRGGBB`).
+ */
+internal val TagPalette: List<Color> = listOf(
+    Color(0xFFE53935), // красный
+    Color(0xFFD81B60), // розовый
+    Color(0xFF8E24AA), // фиолетовый
+    Color(0xFF5E35B1), // тёмно-фиолетовый
+    Color(0xFF3949AB), // индиго
+    Color(0xFF1E88E5), // синий
+    Color(0xFF039BE5), // голубой
+    Color(0xFF00ACC1), // бирюзовый
+    Color(0xFF00897B), // сине-зелёный
+    Color(0xFF43A047), // зелёный
+    Color(0xFF7CB342), // салатовый
+    Color(0xFFC0CA33), // лаймовый
+    Color(0xFFFDD835), // жёлтый
+    Color(0xFFFFB300), // янтарный
+    Color(0xFFFB8C00), // оранжевый
+    Color(0xFFF4511E), // тёмно-оранжевый
+    Color(0xFF6D4C41), // коричневый
+    Color(0xFF757575), // серый
+)
+
+/**
+ * Текст на цветном теге: светлый на тёмном цвете, тёмный на светлом.
+ */
+internal val TagTextOnDark = Color(0xFFFFFFFF)
+internal val TagTextOnLight = Color(0xFF1B1B1B)

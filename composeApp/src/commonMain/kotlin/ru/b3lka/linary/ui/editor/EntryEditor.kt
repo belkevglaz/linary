@@ -71,6 +71,7 @@ fun EntryEditor(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
     onDelete: (() -> Unit)? = null,
+    tags: EditorTagSource? = null,
 ) {
     val state = rememberRichTextState()
     val history = remember(session) { EditHistory() }
@@ -126,6 +127,7 @@ fun EntryEditor(
             onClose = close,
             onInsertTime = { controller.insertTime(now()) },
             onDelete = onDelete,
+            tags = tags,
         )
         FormattingToolbar(
             controller,
@@ -133,6 +135,7 @@ fun EntryEditor(
         )
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         EditorAttachments(session)
+        tags?.let { EditorTagRow(session, it.all) }
         EditorField(state, focus, controller.scrollToEndRequests, Modifier.weight(1f))
     }
 

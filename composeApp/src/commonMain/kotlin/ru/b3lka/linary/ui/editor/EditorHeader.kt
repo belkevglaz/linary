@@ -38,7 +38,7 @@ import ru.b3lka.linary.ui.theme.LinaryColors
 private const val MAX_RATING = 5
 
 /**
- * Шапка редактора как на телефоне: «назад», дата и время, оценка и кнопка сохранения.
+ * Шапка редактора как на телефоне: «назад», дата и время, теги, оценка и кнопка сохранения.
  */
 @Composable
 internal fun EditorHeader(
@@ -48,6 +48,7 @@ internal fun EditorHeader(
     onClose: () -> Unit,
     onInsertTime: () -> Unit,
     onDelete: (() -> Unit)?,
+    tags: EditorTagSource?,
 ) {
     val formatter = LocalDateFormatter.current
     val date = session.dateTime.date
@@ -72,6 +73,7 @@ internal fun EditorHeader(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            if (tags != null) TagPickerButton(session, tags)
             RatingBar(session.rating, onChange = { session.rating = it })
             Spacer(Modifier.width(16.dp))
             SaveButton(saving, onSave)

@@ -3,7 +3,6 @@ package ru.b3lka.linary.ui.editor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -62,6 +60,7 @@ import ru.b3lka.linary.ui.media.CollapsibleMedia
 import ru.b3lka.linary.ui.media.MediaFileTile
 import ru.b3lka.linary.ui.media.MediaImage
 import ru.b3lka.linary.ui.media.MediaMenu
+import ru.b3lka.linary.ui.media.ThumbnailStrip
 
 private const val THUMBNAIL_PX = 320
 
@@ -76,10 +75,7 @@ internal fun EditorAttachments(session: EditorSession) {
     if (items.isEmpty() && session.preparingMedia == 0 && session.failedMedia == 0) return
     Column(Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 12.dp)) {
         CollapsibleMedia(items.size + session.preparingMedia) {
-            Row(
-                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+            ThumbnailStrip {
                 items.forEachIndexed { index, item ->
                     AttachmentTile(session, item, index, isLast = index == items.lastIndex)
                 }

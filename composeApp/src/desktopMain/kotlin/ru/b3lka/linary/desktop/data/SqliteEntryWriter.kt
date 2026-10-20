@@ -30,6 +30,7 @@ internal object SqliteEntryWriter {
             c.autoCommit = false
             val id = change.original?.let { update(c, it.id, change) } ?: insert(c, change)
             applyMedia(c, id, change)
+            change.tagIds?.let { applyTags(c, id, it) }
             c.commit()
             id
         }
@@ -111,6 +112,34 @@ internal object SqliteEntryWriter {
         }
         return id
     }
+
+    /**
+     * Идентификаторы тегов записи [entryId] в базе [file].
+     */
+    fun tagIds(file: File, entryId: Long): Set<Long> = SqliteDiaryReader.open(file).use { tagIds(it, entryId) }
+
+    /**
+     * Приводит теги записи к [tagIds]: лишние связи удаляет, недостающие добавляет (без значения трекера).
+     * У оставшихся тегов значение трекера не трогается.
+     */
+    private fun applyTags(c: Connection, entryId: Long, tagIds: Set<Long>) {
+        val current = tagIds(c, entryId)
+        (current - tagIds).forEach { tagId ->
+            c.prepareStatement("delete from EntryTags where DiaryEntryId = ? and DiaryTagId = ?").use { st ->
+                st.bind(entryId, tagId).executeUpdate()
+            }
+        }
+        (tagIds - current).forEach { tagId ->
+            c.prepareStatement("insert into EntryTags (DiaryEntryId, DiaryTagId, TrackingValue) values (?, ?, null)")
+                .use { st -> st.bind(entryId, tagId).executeUpdate() }
+        }
+    }
+
+    private fun tagIds(c: Connection, entryId: Long): Set<Long> =
+        c.prepareStatement("select DiaryTagId from EntryTags where DiaryEntryId = ?").use { st ->
+            st.setLong(1, entryId)
+            st.executeQuery().use { rs -> buildSet { while (rs.next()) add(rs.getLong(1)) } }
+        }
 
     /**
      * Убирает удалённые вложения и добавляет новые в конец (`Index` продолжает нумерацию).

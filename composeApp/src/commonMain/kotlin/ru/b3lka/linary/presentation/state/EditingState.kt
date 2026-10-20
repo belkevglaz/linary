@@ -10,6 +10,7 @@ import ru.b3lka.linary.core.html.DiariumHtmlWriter
 import ru.b3lka.linary.core.model.DiaryEntry
 import ru.b3lka.linary.core.model.DiaryMedia
 import ru.b3lka.linary.core.model.EntryChange
+import ru.b3lka.linary.core.model.TagChange
 import ru.b3lka.linary.core.repository.DiaryWriteException
 import ru.b3lka.linary.presentation.editor.EditorSession
 
@@ -85,6 +86,7 @@ class EditingState internal constructor(private val app: AppState) {
                 addedMedia = session.addedMedia.toList(),
                 removedMediaIds = session.removedMediaIds,
                 mediaOrder = session.mediaOrder,
+                tagIds = if (session.tagsChanged) session.tagIds.toSet() else null,
             )
             val id = app.repository.saveEntry(change)
             editor = null
@@ -129,6 +131,20 @@ class EditingState internal constructor(private val app: AppState) {
             )
             app.reload()
         }
+    }
+
+    /**
+     * Создаёт тег или меняет название и цвет существующего, затем перечитывает дневник.
+     * Возвращает идентификатор тега; null — сохранить не удалось (ошибка — в [error]).
+     */
+    suspend fun saveTag(change: TagChange): Long? {
+        if (!app.canEdit) return null
+        var id: Long? = null
+        writing {
+            id = app.repository.saveTag(change)
+            app.reload()
+        }
+        return id
     }
 
     /**

@@ -8,6 +8,16 @@
 Сборка на GitHub проверит, что версия в теге, gradle.properties и здесь совпадает.
 -->
 
+## 2.2.0 — not released yet
+
+- Photo thumbnails in the editor and in the entry view are easy to browse when a day has many of them:
+  the mouse wheel scrolls the strip sideways, and arrow buttons at its edges page through it.
+- Tags are shown in their colors, as in Diarium: entry tags as colored labels, the Tags section with colored
+  filters.
+- New tags can be created in the Tags section ("New tag"), and right-clicking a tag changes its name or color.
+- Tags can be attached to an entry in the editor: the tag button in the editor header lists all tags and has
+  "New tag…". The entry's tags are shown under the photos; clicking one removes it.
+
 ## 2.1.0 — 2026-10-19
 
 - The calendar (or the list of entries in other sections) can be hidden like a navigation drawer, so the

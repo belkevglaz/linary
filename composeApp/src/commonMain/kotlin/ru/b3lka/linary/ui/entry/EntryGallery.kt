@@ -2,14 +2,9 @@ package ru.b3lka.linary.ui.entry
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +24,7 @@ import ru.b3lka.linary.ui.media.CollapsibleMedia
 import ru.b3lka.linary.ui.media.MediaFileTile
 import ru.b3lka.linary.ui.media.MediaImage
 import ru.b3lka.linary.ui.media.MediaMenu
+import ru.b3lka.linary.ui.media.ThumbnailStrip
 
 /**
  * Лента вложений записи: плитки одинакового размера при любом их количестве; сворачивается.
@@ -39,10 +35,7 @@ fun EntryGallery(entry: DiaryEntry, onOpenPhoto: (ViewerState) -> Unit) {
     val media = entry.media.sortedBy { it.index }
     val images = media.filter { it.type == MediaType.Image }
     CollapsibleMedia(media.size) {
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+        ThumbnailStrip {
             media.forEach { m ->
                 GalleryTile(m, isCover = m == media.first()) { onOpenPhoto(ViewerState(images, images.indexOf(m))) }
             }

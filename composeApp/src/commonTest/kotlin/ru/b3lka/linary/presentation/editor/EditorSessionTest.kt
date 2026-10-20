@@ -3,6 +3,8 @@ package ru.b3lka.linary.presentation.editor
 import kotlinx.datetime.LocalDateTime
 import ru.b3lka.linary.core.model.DiaryEntry
 import ru.b3lka.linary.core.model.DiaryMedia
+import ru.b3lka.linary.core.model.DiaryTag
+import ru.b3lka.linary.core.model.EntryTag
 import ru.b3lka.linary.core.model.MediaType
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,6 +32,25 @@ class EditorSessionTest {
         assertEquals(listOf("a", "c", "b"), session.mediaOrder)
         session.move(session.attachments[2], 1) // за край не уходит
         assertEquals(listOf("a", "c", "b"), session.mediaOrder)
+    }
+
+    @Test
+    fun toggleTagsMarksSessionDirty() {
+        val tag = DiaryTag(3, "work", 0, null, null)
+        val tagged = DiaryEntry(1, time, "", "<p>x</p>", 0, 0.0, 0.0, listOf(EntryTag(tag, null)), emptyList())
+        val session = EditorSession(tagged, time)
+        assertEquals(listOf(3L), session.tagIds.toList())
+        assertFalse(session.tagsChanged)
+
+        session.toggleTag(7)
+        assertTrue(session.tagsChanged)
+        assertTrue(session.isDirty)
+
+        session.toggleTag(7)
+        assertFalse(session.tagsChanged)
+        session.toggleTag(3)
+        assertTrue(session.tagIds.isEmpty())
+        assertTrue(session.tagsChanged)
     }
 
     @Test

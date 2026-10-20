@@ -1,6 +1,9 @@
 package ru.b3lka.linary.ui.common
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -10,6 +13,30 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlin.math.abs
+
+/**
+ * Колесо мыши (и горизонтальная прокрутка тачпада) листает [state] по горизонтали — для лент,
+ * которые иначе прокручиваются только перетаскиванием. Если листать нечего, событие уходит дальше,
+ * и прокручивается то, что снаружи.
+ *
+ * @param step сколько пикселей на одно деление колеса.
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.wheelScrollsHorizontally(state: ScrollState, step: Float): Modifier = pointerInput(state) {
+    awaitPointerEventScope {
+        while (true) {
+            val event = awaitPointerEvent()
+            if (event.type != PointerEventType.Scroll || state.maxValue == 0) continue
+            val delta = event.changes.fold(Offset.Zero) { sum, change -> sum + change.scrollDelta }
+            val amount = (if (abs(delta.x) > abs(delta.y)) delta.x else delta.y) * step
+            // Сразу, без анимации: так колесо не теряет быстрые повторные деления
+            if (amount != 0f && state.dispatchRawDelta(amount) != 0f) {
+                event.changes.forEach { it.consume() }
+            }
+        }
+    }
+}
 
 /**
  * Обработчик правого клика (на десктопе) — аналог долгого нажатия на телефоне.

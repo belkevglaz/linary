@@ -39,6 +39,11 @@ class EditorSession(
     }
 
     /**
+     * Теги записи (идентификаторы) после правки.
+     */
+    val tagIds = mutableStateListOf<Long>().apply { addAll(original?.tags.orEmpty().map { it.tag.id }) }
+
+    /**
      * Сохранённые вложения, которые пользователь убрал.
      */
     private val removedIds = mutableSetOf<String>()
@@ -57,7 +62,7 @@ class EditorSession(
     val isNew: Boolean get() = original == null
 
     val isDirty: Boolean
-        get() = textChanged || rating != (original?.rating ?: 0) || mediaChanged
+        get() = textChanged || rating != (original?.rating ?: 0) || mediaChanged || tagsChanged
 
     val initialHtml: String get() = original?.html.orEmpty()
 
@@ -69,6 +74,19 @@ class EditorSession(
      * Итоговый порядок вложений.
      */
     val mediaOrder: List<String> get() = attachments.map { it.id }
+
+    /**
+     * Теги менялись — их нужно записать.
+     */
+    val tagsChanged: Boolean
+        get() = tagIds.toSet() != original?.tags.orEmpty().map { it.tag.id }.toSet()
+
+    /**
+     * Добавляет тег к записи или убирает его.
+     */
+    fun toggleTag(id: Long) {
+        if (!tagIds.remove(id)) tagIds += id
+    }
 
     private val mediaChanged: Boolean
         get() = mediaOrder != original?.media.orEmpty().sortedBy { it.index }.map { it.id }
