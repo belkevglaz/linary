@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import ru.b3lka.linary.core.model.DiaryTag
-import ru.b3lka.linary.core.model.TagChange
 import ru.b3lka.linary.presentation.editor.EditorSession
 import ru.b3lka.linary.resources.Res
 import ru.b3lka.linary.resources.editor_tags
@@ -48,11 +47,6 @@ import ru.b3lka.linary.ui.tags.TagColorDot
 import ru.b3lka.linary.ui.tags.TagDialog
 import ru.b3lka.linary.ui.tags.contentColorFor
 import ru.b3lka.linary.ui.tags.displayColor
-
-/**
- * Теги для редактора: все теги журнала и создание нового (возвращает его id или null при ошибке).
- */
-class EditorTagSource(val all: List<DiaryTag>, val create: suspend (TagChange) -> Long?)
 
 /**
  * Кнопка «Теги» в шапке редактора: меню со всеми тегами (отметить — прикрепить к записи)

@@ -4,6 +4,8 @@ import org.sqlite.SQLiteConfig
 import ru.b3lka.linary.core.model.TagChange
 import ru.b3lka.linary.core.repository.DiaryWriteException
 import java.io.File
+import java.sql.Connection
+import java.sql.PreparedStatement
 
 /**
  * Запись тегов в таблицу `Tags` журнала: `DiaryTagId` (autoincrement), `Value`, `Type` (0 — обычный тег),
@@ -18,31 +20,7 @@ internal object SqliteTagWriter {
      */
     fun apply(file: File, change: TagChange): Long =
         SQLiteConfig().createConnection("jdbc:sqlite:${file.absolutePath}").use { c ->
-            val id = change.id
-            if (id == null) {
-                c.prepareStatement("insert into Tags(Value, Type, Color, Icon) values (?, ?, ?, null)").use { st ->
-                    st.setString(1, change.value)
-                    st.setInt(2, TYPE_PLAIN)
-                    st.setString(3, change.color)
-                    st.executeUpdate()
-                }
-                c.createStatement().use { st ->
-                    st.executeQuery("select last_insert_rowid()").use { rs ->
-                        rs.next()
-                        rs.getLong(1)
-                    }
-                }
-            } else {
-                val sql = "update Tags set Value = ?, Color = ? where DiaryTagId = ?"
-                val updated = c.prepareStatement(sql).use { st ->
-                    st.setString(1, change.value)
-                    st.setString(2, change.color)
-                    st.setLong(3, id)
-                    st.executeUpdate()
-                }
-                if (updated == 0) throw DiaryWriteException(DiaryWriteException.Reason.Conflict, "tag $id")
-                id
-            }
+            change.id?.let { update(c, it, change) } ?: insert(c, change)
         }
 
     /**
@@ -57,4 +35,28 @@ internal object SqliteTagWriter {
                 }
             }
         }
+
+    private fun insert(c: Connection, change: TagChange): Long {
+        c.prepareStatement("insert into Tags(Value, Type, Color, Icon) values (?, ?, ?, null)").use { st ->
+            st.bind(change.value, TYPE_PLAIN, change.color).executeUpdate()
+        }
+        return c.createStatement().use { st ->
+            st.executeQuery("select last_insert_rowid()").use { rs -> if (rs.next()) rs.getLong(1) else error("no id") }
+        }
+    }
+
+    private fun update(c: Connection, id: Long, change: TagChange): Long {
+        val updated = c.prepareStatement("update Tags set Value = ?, Color = ? where DiaryTagId = ?").use { st ->
+            st.bind(change.value, change.color, id).executeUpdate()
+        }
+        if (updated == 0) throw DiaryWriteException(DiaryWriteException.Reason.Conflict, "tag $id")
+        return id
+    }
+
+    /**
+     * Подставляет параметры запроса по порядку — по одному на каждый `?` слева направо (null — NULL).
+     */
+    private fun PreparedStatement.bind(vararg values: Any?): PreparedStatement = apply {
+        values.forEachIndexed { i, value -> setObject(i + 1, value) }
+    }
 }
