@@ -18,7 +18,6 @@
     <string name="action_today">Today</string>
     <string name="action_reload">Refresh (Ctrl+R)</string>
     <string name="action_choose_source">Choose source</string>
-    <string name="action_toggle_theme">Toggle theme</string>
     <string name="action_close">Close</string>
     <string name="action_clear">Clear</string>
     <string name="action_previous">Previous</string>
@@ -252,4 +251,19 @@
     <string name="lock_prompt">PIN</string>
     <string name="lock_unlock">Unlock</string>
     <string name="lock_wait">Too many attempts. Try again in %1$d s.</string>
+    <string name="editor_heading_placeholder">Title</string>
+    <string name="template_insert">Template…</string>
+    <string name="template_pick_title">Insert template</string>
+    <string name="template_pick_hint">In a new entry the template replaces the text; in an entry you have started it is appended.</string>
+    <string name="template_untitled">Untitled</string>
+    <string name="settings_entries">Entries</string>
+    <string name="settings_default_template">Template for new entries</string>
+    <string name="template_none">None</string>
+    <string name="settings_templates_empty">The diary has no templates. Create them in the Diarium app on your phone.</string>
+    <string name="settings_default_template_hint">New entries start filled with this template.</string>
+    <string name="theme_system">System</string>
+    <string name="settings_theme_system_unknown">The system does not report its theme, so the dark one is used.</string>
+    <string name="settings_theme_system_hint">The theme follows the system theme.</string>
+    <string name="settings_lock_on_close">Lock immediately when the window is closed</string>
+    <string name="settings_lock_on_close_hint">A window closed to the tray or the taskbar opens already locked.</string>
 </resources>

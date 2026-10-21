@@ -13,6 +13,7 @@ import ru.b3lka.linary.core.model.EntryChange
 import ru.b3lka.linary.core.model.TagChange
 import ru.b3lka.linary.core.repository.DiaryWriteException
 import ru.b3lka.linary.presentation.editor.EditorSession
+import ru.b3lka.linary.presentation.editor.EntryPrefill
 
 /**
  * Правка, сохранение и удаление записей.
@@ -57,13 +58,20 @@ class EditingState internal constructor(private val app: AppState) {
     }
 
     /**
-     * Новая запись на день [date] с текущим временем. В один день может быть несколько записей.
+     * Новая запись на день [date] с текущим временем, заполненная шаблоном по умолчанию.
+     * В один день может быть несколько записей.
      */
     fun startNewEntry(date: LocalDate = app.selectedDate) {
         if (!app.canEdit) return
         leaveAttachments()
         app.selectDate(date)
-        editor = EditorSession(original = null, dateTime = LocalDateTime(date, app.now().time))
+        val diary = app.diary
+        val template = diary?.templates?.firstOrNull { it.id == app.defaultTemplateId }
+        editor = EditorSession(
+            original = null,
+            dateTime = LocalDateTime(date, app.now().time),
+            prefill = template?.let { EntryPrefill.of(it, diary?.tags.orEmpty()) },
+        )
     }
 
     fun cancelEditing() {
@@ -86,7 +94,8 @@ class EditingState internal constructor(private val app: AppState) {
                 addedMedia = session.addedMedia.toList(),
                 removedMediaIds = session.removedMediaIds,
                 mediaOrder = session.mediaOrder,
-                tagIds = if (session.tagsChanged) session.tagIds.toSet() else null,
+                tagIds = session.tagIds.toSet().takeIf { session.tagsChanged || session.isNew && it.isNotEmpty() },
+                heading = session.heading.trim().takeIf { session.isNew || session.headingChanged },
             )
             val id = app.repository.saveEntry(change)
             editor = null

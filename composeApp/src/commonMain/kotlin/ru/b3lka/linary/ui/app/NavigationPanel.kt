@@ -20,8 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,8 +43,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ru.b3lka.linary.presentation.state.Section
 import ru.b3lka.linary.resources.Res
+import ru.b3lka.linary.resources.action_quit
 import ru.b3lka.linary.resources.action_settings
-import ru.b3lka.linary.resources.action_toggle_theme
 import ru.b3lka.linary.resources.app_icon
 import ru.b3lka.linary.ui.common.Tooltip
 import ru.b3lka.linary.ui.common.icon
@@ -53,17 +52,17 @@ import ru.b3lka.linary.ui.common.title
 
 /**
  * Боковая панель разделов — аналог выдвижного меню Diarium: иконка приложения сверху,
- * разделы с «таблеткой» выделения, настройки и переключатель темы внизу.
+ * разделы с «таблеткой» выделения, настройки и выход внизу.
  *
  * @param current выбранный раздел; null — открыты настройки.
+ * @param onQuit завершить приложение; null — кнопки выхода нет (закрытие окна и так завершает приложение).
  */
 @Composable
 internal fun NavigationPanel(
     current: Section?,
     onSelect: (Section) -> Unit,
-    dark: Boolean,
-    onToggleDark: () -> Unit,
     onOpenSettings: () -> Unit,
+    onQuit: (() -> Unit)?,
     settingsOpen: Boolean = false,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -103,15 +102,17 @@ internal fun NavigationPanel(
                     onClick = onOpenSettings,
                 )
             }
-            val themeLabel = stringResource(Res.string.action_toggle_theme)
-            Tooltip(themeLabel) {
-                RailItem(
-                    icon = if (dark) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
-                    label = null,
-                    description = themeLabel,
-                    selected = false,
-                    onClick = onToggleDark,
-                )
+            if (onQuit != null) {
+                val quitLabel = stringResource(Res.string.action_quit)
+                Tooltip("$quitLabel (Ctrl+Q)") {
+                    RailItem(
+                        icon = Icons.AutoMirrored.Outlined.Logout,
+                        label = null,
+                        description = quitLabel,
+                        selected = false,
+                        onClick = onQuit,
+                    )
+                }
             }
         }
         Box(Modifier.width(1.dp).fillMaxHeight().background(colors.outlineVariant.copy(alpha = 0.6f)))

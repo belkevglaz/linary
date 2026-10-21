@@ -18,7 +18,6 @@
     <string name="action_today">Сегодня</string>
     <string name="action_reload">Обновить (Ctrl+R)</string>
     <string name="action_choose_source">Выбрать источник</string>
-    <string name="action_toggle_theme">Сменить тему</string>
     <string name="action_close">Закрыть</string>
     <string name="action_clear">Очистить</string>
     <string name="action_previous">Назад</string>
@@ -254,4 +253,19 @@
     <string name="lock_prompt">PIN</string>
     <string name="lock_unlock">Разблокировать</string>
     <string name="lock_wait">Слишком много попыток. Повторите через %1$d с.</string>
+    <string name="editor_heading_placeholder">Заголовок</string>
+    <string name="template_insert">Шаблон…</string>
+    <string name="template_pick_title">Вставить шаблон</string>
+    <string name="template_pick_hint">В новую запись шаблон встанет вместо текста, в начатую — допишется в конец.</string>
+    <string name="template_untitled">Без названия</string>
+    <string name="settings_entries">Записи</string>
+    <string name="settings_default_template">Шаблон новой записи</string>
+    <string name="template_none">Нет</string>
+    <string name="settings_templates_empty">В дневнике нет шаблонов. Их создают в приложении Diarium на телефоне.</string>
+    <string name="settings_default_template_hint">Новая запись сразу заполняется этим шаблоном.</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="settings_theme_system_unknown">Система не сообщает свою тему — используется тёмная.</string>
+    <string name="settings_theme_system_hint">Тема меняется вместе с темой системы.</string>
+    <string name="settings_lock_on_close">Блокировать сразу при закрытии окна</string>
+    <string name="settings_lock_on_close_hint">Окно, закрытое крестиком в трей или панель задач, откроется уже заблокированным.</string>
 </resources>

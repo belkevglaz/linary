@@ -1,8 +1,8 @@
 package ru.b3lka.linary.desktop.tray
 
-import ru.b3lka.linary.desktop.tray.dbus.DBusConnection
-import ru.b3lka.linary.desktop.tray.dbus.DBusMessage
-import ru.b3lka.linary.desktop.tray.dbus.DBusWriter
+import ru.b3lka.linary.desktop.dbus.DBusConnection
+import ru.b3lka.linary.desktop.dbus.DBusMessage
+import ru.b3lka.linary.desktop.dbus.DBusWriter
 
 /**
  * Пункт меню значка.

@@ -2,6 +2,7 @@ package ru.b3lka.linary.desktop.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,10 +35,12 @@ import ru.b3lka.linary.desktop.settings.AppSettings
 import ru.b3lka.linary.desktop.settings.SourceChooser
 import ru.b3lka.linary.desktop.settings.WindowBounds
 import ru.b3lka.linary.desktop.settings.saveWindowState
+import ru.b3lka.linary.desktop.theme.SystemTheme
 import ru.b3lka.linary.desktop.tray.AppTrayIcon
 import ru.b3lka.linary.presentation.editor.ShortcutKeys
 import ru.b3lka.linary.presentation.lock.LockController
 import ru.b3lka.linary.presentation.sync.SyncKeySettings
+import ru.b3lka.linary.presentation.theme.ThemeSettings
 import ru.b3lka.linary.presentation.window.WindowBehavior
 import ru.b3lka.linary.presentation.window.WindowBehavior.CloseAction
 import ru.b3lka.linary.resources.Res
@@ -98,7 +101,8 @@ private fun handleWindowKeys(event: KeyEvent, lock: LockController, quit: () -> 
 fun ApplicationScope.LinaryApplication(initialSource: String?, instance: SingleInstance) {
     val settings = remember { AppSettings() }
     var sourcePath by remember { mutableStateOf(initialSource ?: settings.source ?: SourceChooser.defaultSource()) }
-    var dark by remember { mutableStateOf(settings.dark) }
+    val theme = remember { ThemeSettings(settings) }
+    val systemDark by remember { SystemTheme.darkFlow() }.collectAsState(initial = null)
     val syncKeys = remember { SyncKeySettings(settings) }
     val repository = remember(sourcePath) { sourcePath?.let { createRepository(File(it)) { syncKeys.key } } }
     val platform = remember { DesktopPlatform() }
@@ -129,9 +133,11 @@ fun ApplicationScope.LinaryApplication(initialSource: String?, instance: SingleI
             when (behavior.onCloseAction()) {
                 CloseAction.Quit -> quit()
                 CloseAction.HideToTray -> {
+                    lock.onWindowClosed()
                     windowVisible = false
                 }
                 CloseAction.Minimize -> {
+                    lock.onWindowClosed()
                     windowState.isMinimized = true
                 }
             }
@@ -158,13 +164,11 @@ fun ApplicationScope.LinaryApplication(initialSource: String?, instance: SingleI
             lock = lock,
             photoPreferences = settings,
             listPanePreferences = settings,
+            templatePreferences = settings,
             windowBehavior = behavior,
             syncKeys = syncKeys,
-            dark = dark,
-            onToggleDark = {
-                dark = !dark
-                settings.dark = dark
-            },
+            theme = theme,
+            systemDark = systemDark,
             onChooseSource = {
                 scope.launch {
                     SourceChooser.choose(window, sourcePath, chooserTitle, chooserFilter)?.let {

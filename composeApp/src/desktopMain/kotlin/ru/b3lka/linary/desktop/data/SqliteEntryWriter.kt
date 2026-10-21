@@ -98,6 +98,11 @@ internal object SqliteEntryWriter {
         c.prepareStatement("update Entries set Text = ?, Rating = ? where DiaryEntryId = ?").use { st ->
             st.bind(change.html, change.rating, id).executeUpdate()
         }
+        change.heading?.let { heading ->
+            c.prepareStatement("update Entries set Heading = ? where DiaryEntryId = ?").use { st ->
+                st.bind(heading, id).executeUpdate()
+            }
+        }
         return id
     }
 
@@ -106,12 +111,17 @@ internal object SqliteEntryWriter {
         // Идентификатор — это время в тиках; при совпадении сдвигаемся на тик
         while (exists(c, id)) id++
         c.prepareStatement(
-            "insert into Entries (DiaryEntryId, Heading, Text, Rating, Latitude, Longitude) values (?, '', ?, ?, 0, 0)",
+            "insert into Entries (DiaryEntryId, Heading, Text, Rating, Latitude, Longitude) values (?, ?, ?, ?, 0, 0)",
         ).use { st ->
-            st.bind(id, change.html, change.rating).executeUpdate()
+            st.bind(id, change.heading.orEmpty(), change.html, change.rating).executeUpdate()
         }
         return id
     }
+
+    /**
+     * Заголовок записи [id] в базе [file]; null — записи нет.
+     */
+    fun heading(file: File, id: Long): String? = SqliteDiaryReader.open(file).use { heading(it, id) }
 
     /**
      * Идентификаторы тегов записи [entryId] в базе [file].
@@ -134,6 +144,12 @@ internal object SqliteEntryWriter {
                 .use { st -> st.bind(entryId, tagId).executeUpdate() }
         }
     }
+
+    private fun heading(c: Connection, id: Long): String? =
+        c.prepareStatement("select Heading from Entries where DiaryEntryId = ?").use { st ->
+            st.setLong(1, id)
+            st.executeQuery().use { rs -> if (rs.next()) rs.getString(1) else null }
+        }
 
     private fun tagIds(c: Connection, entryId: Long): Set<Long> =
         c.prepareStatement("select DiaryTagId from EntryTags where DiaryEntryId = ?").use { st ->

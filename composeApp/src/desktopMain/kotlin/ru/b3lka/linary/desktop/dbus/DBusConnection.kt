@@ -1,4 +1,4 @@
-package ru.b3lka.linary.desktop.tray.dbus
+package ru.b3lka.linary.desktop.dbus
 
 import java.io.File
 import java.net.StandardProtocolFamily
@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Минимальное подключение к сессионной шине D-Bus через Unix-сокет — ровно то, что нужно значку в трее:
- * вызвать метод, ответить на вызов, получить сигнал. Без сторонних библиотек.
+ * Минимальное подключение к сессионной шине D-Bus через Unix-сокет — ровно то, что нужно значку в трее
+ * и слежению за темой системы: вызвать метод, ответить на вызов, получить сигнал. Без сторонних библиотек.
  *
  * Входящие сообщения читает отдельный поток; [onMethodCall] и [onSignal] вызываются в нём, поэтому
  * внутри них нельзя ждать ответа на собственный [call] — это делается в другом потоке.

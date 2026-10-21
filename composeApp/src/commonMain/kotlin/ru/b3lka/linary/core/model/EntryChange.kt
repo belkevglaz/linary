@@ -11,6 +11,7 @@ import kotlinx.datetime.LocalDateTime
  * @property addedMedia новые вложения; добавляются после уже имеющихся.
  * @property removedMediaIds вложения записи, которые нужно убрать.
  * @property mediaOrder итоговый порядок вложений по id (первое — обложка); null — не менять порядок.
+ * @property heading заголовок записи; null — не менять (у новой записи — пустой).
  * @property tagIds теги записи после правки; null — теги не трогать. У оставшихся тегов-трекеров значение сохраняется.
  */
 data class EntryChange(
@@ -22,4 +23,5 @@ data class EntryChange(
     val removedMediaIds: Set<String> = emptySet(),
     val mediaOrder: List<String>? = null,
     val tagIds: Set<Long>? = null,
+    val heading: String? = null,
 )

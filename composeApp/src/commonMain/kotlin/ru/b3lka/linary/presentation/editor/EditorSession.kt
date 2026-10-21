@@ -15,15 +15,23 @@ import ru.b3lka.linary.presentation.platform.ImageSource
  * Правка одной записи. Сам текст живёт в состоянии редактора (UI) и передаётся при сохранении.
  *
  * @property original запись до правки; null — новая запись.
+ * @param prefill начальное содержимое новой записи (шаблон); правкой оно не считается.
  */
 class EditorSession(
     original: DiaryEntry?,
     val dateTime: LocalDateTime,
+    prefill: EntryPrefill? = null,
 ) {
     var original: DiaryEntry? by mutableStateOf(original)
         private set
 
     var rating by mutableStateOf(original?.rating ?: 0)
+
+    private val initialHeading = original?.heading ?: prefill?.heading.orEmpty()
+
+    var heading by mutableStateOf(initialHeading)
+
+    private val initialTagIds = original?.tags?.map { it.tag.id } ?: prefill?.tagIds.orEmpty()
 
     /**
      * Были ли изменения в тексте (выставляет UI) или в оценке.
@@ -41,7 +49,7 @@ class EditorSession(
     /**
      * Теги записи (идентификаторы) после правки.
      */
-    val tagIds = mutableStateListOf<Long>().apply { addAll(original?.tags.orEmpty().map { it.tag.id }) }
+    val tagIds = mutableStateListOf<Long>().apply { addAll(initialTagIds) }
 
     /**
      * Сохранённые вложения, которые пользователь убрал.
@@ -62,9 +70,14 @@ class EditorSession(
     val isNew: Boolean get() = original == null
 
     val isDirty: Boolean
-        get() = textChanged || rating != (original?.rating ?: 0) || mediaChanged || tagsChanged
+        get() = textChanged || rating != (original?.rating ?: 0) || mediaChanged || tagsChanged || headingChanged
 
-    val initialHtml: String get() = original?.html.orEmpty()
+    val initialHtml: String = original?.html ?: prefill?.html.orEmpty()
+
+    /**
+     * Заголовок менялся — его нужно записать.
+     */
+    val headingChanged: Boolean get() = heading != initialHeading
 
     val addedMedia: List<NewMedia> get() = attachments.filterIsInstance<Attachment.Added>().map { it.media }
 
@@ -79,13 +92,20 @@ class EditorSession(
      * Теги менялись — их нужно записать.
      */
     val tagsChanged: Boolean
-        get() = tagIds.toSet() != original?.tags.orEmpty().map { it.tag.id }.toSet()
+        get() = tagIds.toSet() != initialTagIds.toSet()
 
     /**
      * Добавляет тег к записи или убирает его.
      */
     fun toggleTag(id: Long) {
         if (!tagIds.remove(id)) tagIds += id
+    }
+
+    /**
+     * Добавляет теги [ids], которых у записи ещё нет.
+     */
+    fun addTags(ids: List<Long>) {
+        ids.distinct().filter { it !in tagIds }.forEach { tagIds += it }
     }
 
     private val mediaChanged: Boolean

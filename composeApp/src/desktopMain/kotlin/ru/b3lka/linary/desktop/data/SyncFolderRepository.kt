@@ -116,8 +116,9 @@ class SyncFolderRepository(
         val order = change.mediaOrder
         val orderOk = order == null || media.filter { it in order } == order.filter { it in media }
         val tagsOk = change.tagIds == null || SqliteEntryWriter.tagIds(file, id) == change.tagIds
+        val headingOk = change.heading == null || SqliteEntryWriter.heading(file, id) == change.heading
         val mediaOk = change.addedMedia.all { it.id in media } && change.removedMediaIds.none { it in media }
-        return orderOk && tagsOk && mediaOk
+        return orderOk && tagsOk && headingOk && mediaOk
     }
 
     override suspend fun deleteEntry(entry: DiaryEntry) {

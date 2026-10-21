@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -22,13 +23,15 @@ import ru.b3lka.linary.resources.Res
 import ru.b3lka.linary.resources.action_delete
 import ru.b3lka.linary.resources.action_insert_time
 import ru.b3lka.linary.resources.editor_more
+import ru.b3lka.linary.resources.template_insert
 import ru.b3lka.linary.ui.common.Tooltip
 
 /**
- * Меню «⋮» редактора: «Вставить время» и, для уже сохранённой записи, «Удалить».
+ * Меню «⋮» редактора: «Вставить время», «Шаблон…» (если в дневнике есть шаблоны)
+ * и, для уже сохранённой записи, «Удалить».
  */
 @Composable
-internal fun EditorMenu(onInsertTime: () -> Unit, onDelete: (() -> Unit)?) {
+internal fun EditorMenu(onInsertTime: () -> Unit, onPickTemplate: (() -> Unit)?, onDelete: (() -> Unit)?) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         val more = stringResource(Res.string.editor_more)
@@ -45,6 +48,16 @@ internal fun EditorMenu(onInsertTime: () -> Unit, onDelete: (() -> Unit)?) {
                     onInsertTime()
                 },
             )
+            if (onPickTemplate != null) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(Res.string.template_insert)) },
+                    leadingIcon = { Icon(Icons.Outlined.Description, null) },
+                    onClick = {
+                        expanded = false
+                        onPickTemplate()
+                    },
+                )
+            }
             if (onDelete != null) {
                 HorizontalDivider()
                 val danger = MaterialTheme.colorScheme.error

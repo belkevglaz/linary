@@ -1,4 +1,4 @@
-package ru.b3lka.linary.desktop.tray.dbus
+package ru.b3lka.linary.desktop.dbus
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

@@ -78,6 +78,25 @@ class SyncFolderRepositoryTest {
     }
 
     @Test
+    fun headingIsWrittenAndKeptWhenNotGiven() = runBlocking<Unit> {
+        val dir = syncFolder()
+        val repo = repository(dir)
+        val entry = repo.load().entries.single()
+
+        repo.saveEntry(EntryChange(entry, entry.dateTime, "<p>x</p>", 0, heading = "Title"))
+        val titled = repo.load().entries.single()
+        assertEquals("Title", titled.heading)
+
+        repo.saveEntry(EntryChange(titled, titled.dateTime, "<p>y</p>", 0))
+        assertEquals("Title", repo.load().entries.single().heading)
+
+        val newId = repo.saveEntry(
+            EntryChange(null, LocalDateTime(2026, 10, 16, 12, 0), "<p>z</p>", 0, heading = "New"),
+        )
+        assertEquals("New", repo.load().entries.first { it.id == newId }.heading)
+    }
+
+    @Test
     fun addAndRemoveMedia() = runBlocking<Unit> {
         val dir = syncFolder()
         val repo = repository(dir)

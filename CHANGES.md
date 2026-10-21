@@ -17,6 +17,17 @@
 - New tags can be created in the Tags section ("New tag"), and right-clicking a tag changes its name or color.
 - Tags can be attached to an entry in the editor: the tag button in the editor header lists all tags and has
   "New tag…". The entry's tags are shown under the photos; clicking one removes it.
+- Entries have an editable heading: a title line above the text in the editor.
+- Diary templates (created in Diarium on the phone) can be inserted from the editor's "⋮" menu → "Template…".
+  As on the phone, in a new untouched entry the template replaces the text and sets the heading; otherwise it is
+  appended at the end. The template's tags are added to the entry.
+- Settings → Entries: a template that new entries start with.
+- The theme can follow the system: Settings → Appearance → "System" switches between light and dark together
+  with the desktop (via the XDG desktop portal, e.g. KDE Plasma, GNOME). The theme button moved from the side panel
+  to Settings → Appearance.
+- The "Quit" button moved from Settings to the bottom of the side panel.
+- Settings → Lock: "Lock immediately when the window is closed" — a window closed to the tray or the taskbar
+  opens already locked, without waiting for the idle timeout. On by default.
 
 ## 2.1.0 — 2026-10-19
 

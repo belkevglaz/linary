@@ -17,6 +17,7 @@ class LockControllerTest {
         override var lockStyle = LockStyle.Solid.name
         override var lockBlurRadius = LockController.DEFAULT_BLUR
         override var lockCollapsePhotos = true
+        override var lockOnClose = true
         private var pin: String? = null
         override val hasPin: Boolean get() = pin != null
 
@@ -61,6 +62,22 @@ class LockControllerTest {
         assertEquals(UnlockResult.Wrong, lock.unlock("0000"))
         assertEquals(UnlockResult.Ok, lock.unlock("1234"))
         assertFalse(lock.locked)
+    }
+
+    @Test
+    fun locksOnWindowCloseOnlyWhenConfigured() {
+        val lock = LockController(prefs, time)
+        lock.enable("1234")
+        lock.unlock("1234")
+
+        lock.changeLockOnClose(false)
+        lock.onWindowClosed()
+        assertFalse(lock.locked)
+        assertFalse(prefs.lockOnClose)
+
+        lock.changeLockOnClose(true)
+        lock.onWindowClosed()
+        assertTrue(lock.locked)
     }
 
     @Test

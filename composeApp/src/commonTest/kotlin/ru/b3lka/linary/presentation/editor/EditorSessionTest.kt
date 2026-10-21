@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import ru.b3lka.linary.core.model.DiaryEntry
 import ru.b3lka.linary.core.model.DiaryMedia
 import ru.b3lka.linary.core.model.DiaryTag
+import ru.b3lka.linary.core.model.DiaryTemplate
 import ru.b3lka.linary.core.model.EntryTag
 import ru.b3lka.linary.core.model.MediaType
 import kotlin.test.Test
@@ -72,5 +73,30 @@ class EditorSessionTest {
 
         assertEquals(listOf("b", "d"), session.mediaOrder)
         assertEquals(setOf("c"), session.removedMediaIds)
+    }
+
+    @Test
+    fun prefillFromTemplateIsNotAnEdit() {
+        val tags = listOf(DiaryTag(3, "Work", 0, null, null), DiaryTag(4, "home", 0, null, null))
+        val template = DiaryTemplate(1, "Day", "Plan", "<p>Goals</p>", "work, unknown")
+        val session = EditorSession(null, time, EntryPrefill.of(template, tags))
+        assertEquals("Plan", session.heading)
+        assertEquals("<p>Goals</p>", session.initialHtml)
+        assertEquals(listOf(3L), session.tagIds.toList())
+        assertFalse(session.isDirty)
+
+        session.heading = "Other"
+        assertTrue(session.headingChanged)
+        assertTrue(session.isDirty)
+    }
+
+    @Test
+    fun headingOfSavedEntryIsBaseline() {
+        val titled = DiaryEntry(1, time, "Title", "<p>x</p>", 0, 0.0, 0.0, emptyList(), emptyList())
+        val session = EditorSession(titled, time)
+        assertEquals("Title", session.heading)
+        assertFalse(session.headingChanged)
+        session.addTags(listOf(5, 5))
+        assertEquals(listOf(5L), session.tagIds.toList())
     }
 }

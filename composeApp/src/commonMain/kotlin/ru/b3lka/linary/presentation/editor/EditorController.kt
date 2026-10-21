@@ -10,6 +10,7 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
+import ru.b3lka.linary.core.model.DiaryTemplate
 import ru.b3lka.linary.presentation.platform.ImageSource
 import ru.b3lka.linary.presentation.platform.PlatformServices
 
@@ -68,6 +69,26 @@ class EditorController(
         requestFocus()
     }
 
+    /**
+     * Вставляет шаблон как на телефоне: в новую нетронутую запись — вместо текста (и с заголовком),
+     * иначе — в конец через пустую строку; заголовок ставится, только если его не было.
+     * Теги шаблона [tagIds] добавляются к тегам записи.
+     */
+    fun applyTemplate(template: DiaryTemplate, tagIds: List<Long>) {
+        val replace = session.isNew && !session.isDirty || text.annotatedString.text.isBlank()
+        if (replace) {
+            text.setHtml(template.html)
+        } else {
+            val current = text.toHtml()
+            val gap = if (current.endsWith(EMPTY_PARAGRAPH)) "" else EMPTY_PARAGRAPH
+            text.setHtml(current + gap + template.html)
+            scrollToEndRequests++
+        }
+        if (replace || session.heading.isBlank()) session.heading = template.heading
+        session.addTags(tagIds)
+        requestFocus()
+    }
+
     fun undo() {
         history.undo()?.let { text.setHtml(it) }
     }
@@ -113,3 +134,5 @@ class EditorController(
         runCatching { focus.requestFocus() }
     }
 }
+
+private const val EMPTY_PARAGRAPH = "<p></p>"

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +25,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -41,12 +43,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import ru.b3lka.linary.core.model.DiaryTemplate
 import ru.b3lka.linary.presentation.editor.EditHistory
 import ru.b3lka.linary.presentation.editor.EditorCommand
 import ru.b3lka.linary.presentation.editor.EditorController
 import ru.b3lka.linary.presentation.editor.EditorSession
 import ru.b3lka.linary.presentation.editor.ShortcutKeys
 import ru.b3lka.linary.resources.Res
+import ru.b3lka.linary.resources.editor_heading_placeholder
 import ru.b3lka.linary.resources.editor_placeholder
 import ru.b3lka.linary.resources.media_chooser_filter
 import ru.b3lka.linary.resources.media_chooser_title
@@ -72,6 +76,7 @@ fun EntryEditor(
     modifier: Modifier = Modifier,
     onDelete: (() -> Unit)? = null,
     tags: EditorTagSource? = null,
+    templates: List<DiaryTemplate> = emptyList(),
 ) {
     val state = rememberRichTextState()
     val history = remember(session) { EditHistory() }
@@ -79,34 +84,23 @@ fun EntryEditor(
     @Suppress("DEPRECATION") // ClipboardManager: см. EditorController
     val clipboard = LocalClipboardManager.current
     var confirmDiscard by remember(session) { mutableStateOf(false) }
+    var pickTemplate by remember(session) { mutableStateOf(false) }
+    var headingFocused by remember { mutableStateOf(false) }
     val focus = remember { FocusRequester() }
-    val linkColor = MaterialTheme.colorScheme.primary
     val platform = LocalPlatform.current
     val scope = rememberCoroutineScope()
     val chooserTitle = stringResource(Res.string.media_chooser_title)
     val chooserFilter = stringResource(Res.string.media_chooser_filter)
 
-    LaunchedEffect(session) {
-        state.config.linkColor = linkColor
-        state.setHtml(session.initialHtml)
-        val baseline = state.toHtml()
-        history.reset(baseline)
-        focus.requestFocus()
-        snapshotFlow { state.annotatedString }.collectLatest {
-            delay(HISTORY_DEBOUNCE_MS)
-            val html = state.toHtml()
-            history.push(html)
-            session.textChanged = html != baseline
-        }
-    }
+    TrackEditorText(session, state, history, focus)
 
     val controller = remember(session, state) {
         EditorController(state, session, history, platform, clipboard, scope, focus)
     }
     val save by rememberUpdatedState { if (!saving && session.preparingMedia == 0) onSave(state.toHtml()) }
     val close by rememberUpdatedState { if (session.isDirty) confirmDiscard = true else onClose() }
-    val runCommand: (EditorCommand) -> Unit = { command ->
-        if (command == EditorCommand.Save) save() else controller.run(command, now())
+    val runCommand: (EditorCommand) -> Boolean = { command ->
+        runEditorCommand(command, headingFocused, save) { controller.run(command, now()) }
     }
     var dropActive by remember { mutableStateOf(false) }
     val dropTarget = remember(platform, controller) {
@@ -126,6 +120,7 @@ fun EntryEditor(
             onSave = save,
             onClose = close,
             onInsertTime = { controller.insertTime(now()) },
+            onPickTemplate = if (templates.isNotEmpty()) ({ pickTemplate = true }) else null,
             onDelete = onDelete,
             tags = tags,
         )
@@ -136,12 +131,77 @@ fun EntryEditor(
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         EditorAttachments(session)
         tags?.let { EditorTagRow(session, it.all) }
+        HeadingField(session, onFocusChange = { headingFocused = it }, onDone = { focus.requestFocus() })
         EditorField(state, focus, controller.scrollToEndRequests, Modifier.weight(1f))
     }
 
     if (confirmDiscard && !LocalAppLocked.current) {
         DiscardDialog(onDiscard = onClose, onKeepEditing = { confirmDiscard = false })
     }
+    if (pickTemplate && !LocalAppLocked.current) {
+        TemplatePickerDialog(
+            templates,
+            onPick = { template ->
+                pickTemplate = false
+                controller.applyTemplate(template, template.tagIds(tags?.all.orEmpty()))
+            },
+            onDismiss = { pickTemplate = false },
+        )
+    }
+}
+
+/**
+ * Загружает текст сессии в редактор и следит за правками: история отмены и признак изменённого текста.
+ */
+@Composable
+private fun TrackEditorText(session: EditorSession, state: RichTextState, history: EditHistory, focus: FocusRequester) {
+    val linkColor = MaterialTheme.colorScheme.primary
+    LaunchedEffect(session) {
+        state.config.linkColor = linkColor
+        state.setHtml(session.initialHtml)
+        val baseline = state.toHtml()
+        history.reset(baseline)
+        focus.requestFocus()
+        snapshotFlow { state.annotatedString }.collectLatest {
+            delay(HISTORY_DEBOUNCE_MS)
+            val html = state.toHtml()
+            history.push(html)
+            session.textChanged = html != baseline
+        }
+    }
+}
+
+/**
+ * Заголовок записи — одна строка над текстом, как на телефоне. Enter переводит к тексту.
+ */
+@Composable
+private fun HeadingField(session: EditorSession, onFocusChange: (Boolean) -> Unit, onDone: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val style = MaterialTheme.typography.titleLarge.copy(color = colors.onSurface)
+    BasicTextField(
+        value = session.heading,
+        onValueChange = { session.heading = it.replace('\n', ' ') },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 32.dp, end = 32.dp, top = 16.dp)
+            .onFocusChanged { onFocusChange(it.isFocused) }
+            .onPreviewKeyEvent { event ->
+                val enter = event.key == Key.Enter || event.key == Key.NumPadEnter
+                if (enter && event.type == KeyEventType.KeyDown) onDone()
+                enter
+            },
+        textStyle = style,
+        singleLine = true,
+        cursorBrush = SolidColor(colors.primary),
+        decorationBox = { inner ->
+            Box {
+                if (session.heading.isEmpty()) {
+                    Text(stringResource(Res.string.editor_heading_placeholder), style = style, color = colors.outline)
+                }
+                inner()
+            }
+        },
+    )
 }
 
 @Composable
@@ -177,9 +237,26 @@ private fun EditorField(state: RichTextState, focus: FocusRequester, scrollToEnd
 }
 
 /**
+ * Выполняет команду горячих клавиш: [EditorCommand.Save] — через [save], остальные — через [run].
+ * В поле заголовка копирование, вставка и отмена — свои, обычного текстового поля: тогда команда не выполняется
+ * и возвращается false, чтобы событие дошло до поля.
+ */
+private fun runEditorCommand(
+    command: EditorCommand,
+    headingFocused: Boolean,
+    save: () -> Unit,
+    run: () -> Unit,
+): Boolean {
+    val ownCommand = command == EditorCommand.Save || command == EditorCommand.InsertTime
+    if (headingFocused && !ownCommand) return false
+    if (command == EditorCommand.Save) save() else run()
+    return true
+}
+
+/**
  * Горячие клавиши редактора (см. [ShortcutKeys]). Возвращает true, если событие обработано.
  */
-private fun handleEditorKeys(event: KeyEvent, onClose: () -> Unit, onCommand: (EditorCommand) -> Unit): Boolean {
+private fun handleEditorKeys(event: KeyEvent, onClose: () -> Unit, onCommand: (EditorCommand) -> Boolean): Boolean {
     if (event.type == KeyEventType.KeyUp) return false
     val isKeyDown = event.type == KeyEventType.KeyDown
     if (event.key == Key.Escape) {
@@ -187,10 +264,7 @@ private fun handleEditorKeys(event: KeyEvent, onClose: () -> Unit, onCommand: (E
         return isKeyDown
     }
     val command = ShortcutKeys.command(event)
-    if (command != null && isKeyDown) {
-        onCommand(command)
-        return true
-    }
+    if (command != null && isKeyDown) return onCommand(command)
     // Ctrl + русская буква не должна печатать букву (в том числе отдельным событием ввода символа)
     return ShortcutKeys.isSuppressedTyping(event)
 }

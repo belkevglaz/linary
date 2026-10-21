@@ -2,6 +2,7 @@ package ru.b3lka.linary.ui.common
 
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
+import ru.b3lka.linary.presentation.editor.DefaultTemplateState
 import ru.b3lka.linary.presentation.format.DateFormatter
 import ru.b3lka.linary.presentation.layout.ListPaneState
 import ru.b3lka.linary.presentation.media.MediaActions
@@ -29,6 +30,11 @@ val LocalListPane = staticCompositionLocalOf<ListPaneState?> { null }
  * Свёрнута ли лента вложений. null — лента всегда развёрнута и без заголовка.
  */
 val LocalPhotoStrip = staticCompositionLocalOf<PhotoStripState?> { null }
+
+/**
+ * Шаблон новой записи. null — платформа такую настройку не хранит.
+ */
+val LocalDefaultTemplate = staticCompositionLocalOf<DefaultTemplateState?> { null }
 
 /**
  * Приложение заблокировано: диалоги с содержимым дневника в это время не показываются

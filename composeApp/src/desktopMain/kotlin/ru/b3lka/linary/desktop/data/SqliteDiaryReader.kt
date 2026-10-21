@@ -5,6 +5,7 @@ import ru.b3lka.linary.core.model.Diary
 import ru.b3lka.linary.core.model.DiaryEntry
 import ru.b3lka.linary.core.model.DiaryMedia
 import ru.b3lka.linary.core.model.DiaryTag
+import ru.b3lka.linary.core.model.DiaryTemplate
 import ru.b3lka.linary.core.model.EntryTag
 import ru.b3lka.linary.core.model.MediaType
 import ru.b3lka.linary.core.repository.DiaryLoadException
@@ -46,8 +47,20 @@ internal object SqliteDiaryReader {
                 media = media[id].orEmpty().sortedBy { it.index },
             )
         }
-        return Diary(entries, tags.values.toList())
+        val templates = if ("Templates" in tables) readTemplates(connection) else emptyList()
+        return Diary(entries, tags.values.toList(), templates)
     }
+
+    private fun readTemplates(connection: Connection): List<DiaryTemplate> =
+        connection.query("select * from Templates order by TemplateId") { rs ->
+            DiaryTemplate(
+                id = rs.getLong("TemplateId"),
+                name = rs.getString("Name").orEmpty(),
+                heading = rs.getString("Heading").orEmpty(),
+                html = rs.getString("Text").orEmpty(),
+                tags = rs.getString("Tags").orEmpty(),
+            )
+        }
 
     private fun readTags(connection: Connection): Map<Long, DiaryTag> {
         val columns = connection.columns("Tags")

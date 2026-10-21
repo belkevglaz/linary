@@ -1,12 +1,15 @@
 package ru.b3lka.linary.desktop.settings
 
 import ru.b3lka.linary.desktop.APP_ID
+import ru.b3lka.linary.presentation.editor.TemplatePreferences
 import ru.b3lka.linary.presentation.layout.ListPanePreferences
 import ru.b3lka.linary.presentation.lock.LockController
 import ru.b3lka.linary.presentation.lock.LockPreferences
 import ru.b3lka.linary.presentation.lock.LockStyle
 import ru.b3lka.linary.presentation.media.PhotoStripPreferences
 import ru.b3lka.linary.presentation.sync.SyncKeyPreferences
+import ru.b3lka.linary.presentation.theme.ThemeMode
+import ru.b3lka.linary.presentation.theme.ThemePreferences
 import ru.b3lka.linary.presentation.window.WindowPreferences
 import java.util.prefs.Preferences
 
@@ -19,6 +22,8 @@ class AppSettings :
     PhotoStripPreferences,
     WindowPreferences,
     SyncKeyPreferences,
+    TemplatePreferences,
+    ThemePreferences,
     ListPanePreferences {
     private val prefs: Preferences = Preferences.userRoot().node(APP_ID)
 
@@ -26,9 +31,18 @@ class AppSettings :
         get() = prefs.get(KEY_SOURCE, null)
         set(value) = if (value == null) prefs.remove(KEY_SOURCE) else prefs.put(KEY_SOURCE, value)
 
-    var dark: Boolean
-        get() = prefs.getBoolean(KEY_DARK, true)
-        set(value) = prefs.putBoolean(KEY_DARK, value)
+    /**
+     * Тема. До выбора «как в системе» хранился только флаг тёмной темы — выбор из него сохраняется.
+     */
+    override var themeMode: ThemeMode
+        get() = ThemeMode.entries.firstOrNull { it.name == prefs.get(KEY_THEME, null) }
+            ?: prefs.get(KEY_DARK, null)?.let { if (it.toBoolean()) ThemeMode.Dark else ThemeMode.Light }
+            ?: ThemeMode.System
+        set(value) {
+            prefs.put(KEY_THEME, value.name)
+            prefs.remove(KEY_DARK)
+            flush()
+        }
 
     /**
      * Положение и размер окна, когда оно не развёрнуто.
@@ -71,10 +85,24 @@ class AppSettings :
             flush()
         }
 
+    override var lockOnClose: Boolean
+        get() = prefs.getBoolean(KEY_LOCK_ON_CLOSE, true)
+        set(value) {
+            prefs.putBoolean(KEY_LOCK_ON_CLOSE, value)
+            flush()
+        }
+
     override var lockCollapsePhotos: Boolean
         get() = prefs.getBoolean(KEY_LOCK_COLLAPSE_PHOTOS, true)
         set(value) {
             prefs.putBoolean(KEY_LOCK_COLLAPSE_PHOTOS, value)
+            flush()
+        }
+
+    override var defaultTemplateId: Long?
+        get() = prefs.getLong(KEY_DEFAULT_TEMPLATE, NO_TEMPLATE).takeIf { it != NO_TEMPLATE }
+        set(value) {
+            prefs.putLong(KEY_DEFAULT_TEMPLATE, value ?: NO_TEMPLATE)
             flush()
         }
 
@@ -154,5 +182,9 @@ class AppSettings :
         const val KEY_LIST_PANE = "layout.listPane"
         const val KEY_SYNC_KEY = "sync.key"
         const val KEY_CLOSE_KEEPS_RUNNING = "window.closeKeepsRunning"
+        const val KEY_DEFAULT_TEMPLATE = "editor.defaultTemplate"
+        const val KEY_THEME = "theme.mode"
+        const val KEY_LOCK_ON_CLOSE = "lock.onClose"
+        const val NO_TEMPLATE = -1L
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,8 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.BlurOn
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Key
@@ -47,14 +46,17 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import ru.b3lka.linary.core.model.DiaryTemplate
+import ru.b3lka.linary.presentation.editor.DefaultTemplateState
 import ru.b3lka.linary.presentation.lock.LockController
 import ru.b3lka.linary.presentation.sync.SyncKeySettings
+import ru.b3lka.linary.presentation.theme.ThemeSettings
 import ru.b3lka.linary.presentation.window.WindowBehavior
 import ru.b3lka.linary.resources.Res
 import ru.b3lka.linary.resources.action_close
-import ru.b3lka.linary.resources.action_quit
 import ru.b3lka.linary.resources.settings_about_section
 import ru.b3lka.linary.resources.settings_appearance
+import ru.b3lka.linary.resources.settings_entries
 import ru.b3lka.linary.resources.settings_lock_section
 import ru.b3lka.linary.resources.settings_lock_style
 import ru.b3lka.linary.resources.settings_sync
@@ -67,9 +69,11 @@ import ru.b3lka.linary.ui.common.Tooltip
  * Новые настройки добавляются страницей в [SettingsPage] или группой ([SettingsGroup]) на существующей.
  * `Esc` или стрелка «назад» закрывают настройки.
  *
- * @param window настройки окна и трея; null — страницы «Окно» и кнопки «Выйти» нет.
+ * @param window настройки окна и трея; null — страницы «Окно» нет.
  * @param syncKeys ключ синхронизации; null — страницы «Синхронизация» нет.
  * @param onSyncKeyChanged ключ сохранён или удалён — дневник надо перечитать.
+ * @param templates шаблоны дневника; [defaultTemplate] — какой из них у новой записи (null — страницы «Записи» нет).
+ * @param systemDark тема системы для [ThemeSettings]: тёмная ли она (null — неизвестна).
  * @param appVersion версия из пакета; null — запуск из исходников.
  */
 @Composable
@@ -80,8 +84,10 @@ fun SettingsScreen(
     window: WindowBehavior?,
     syncKeys: SyncKeySettings?,
     onSyncKeyChanged: () -> Unit,
-    dark: Boolean,
-    onToggleDark: () -> Unit,
+    templates: List<DiaryTemplate>,
+    defaultTemplate: DefaultTemplateState?,
+    theme: ThemeSettings,
+    systemDark: Boolean?,
     appVersion: String?,
     onOpenUrl: (String) -> Unit,
     onClose: () -> Unit,
@@ -94,6 +100,7 @@ fun SettingsScreen(
         when (it) {
             SettingsPage.Window -> window != null
             SettingsPage.Sync -> syncKeys != null
+            SettingsPage.Entries -> defaultTemplate != null
             else -> true
         }
     }
@@ -113,7 +120,7 @@ fun SettingsScreen(
             SettingsHeader(onClose)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(Modifier.fillMaxSize()) {
-                PageList(pages, current, onPageChange, onQuit = window?.quit)
+                PageList(pages, current, onPageChange)
                 VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 PageContent(current) {
                     when (current) {
@@ -122,8 +129,9 @@ fun SettingsScreen(
                             lock.lockNow()
                         })
                         SettingsPage.LockScreen -> LockScreenPage(lock)
+                        SettingsPage.Entries -> defaultTemplate?.let { EntriesPage(templates, it) }
                         SettingsPage.Sync -> syncKeys?.let { SyncPage(it, onSyncKeyChanged) }
-                        SettingsPage.Appearance -> AppearancePage(dark, onToggleDark)
+                        SettingsPage.Appearance -> AppearancePage(theme, systemDark)
                         SettingsPage.Window -> window?.let { WindowPage(it) }
                         SettingsPage.About -> AboutPage(appVersion, onOpenUrl)
                     }
@@ -156,7 +164,6 @@ private fun PageList(
     pages: List<SettingsPage>,
     current: SettingsPage,
     onSelect: (SettingsPage) -> Unit,
-    onQuit: (() -> Unit)?,
 ) {
     Column(
         Modifier.width(260.dp).fillMaxHeight().padding(12.dp),
@@ -169,15 +176,6 @@ private fun PageList(
                 icon = { Icon(page.icon, null) },
                 selected = page == current,
                 onClick = { onSelect(page) },
-            )
-        }
-        if (onQuit != null) {
-            Spacer(Modifier.weight(1f))
-            NavigationDrawerItem(
-                label = { Text(stringResource(Res.string.action_quit)) },
-                icon = { Icon(Icons.AutoMirrored.Outlined.Logout, null) },
-                selected = false,
-                onClick = onQuit,
             )
         }
     }
@@ -202,6 +200,7 @@ private val SettingsPage.title: StringResource
     get() = when (this) {
         SettingsPage.Lock -> Res.string.settings_lock_section
         SettingsPage.LockScreen -> Res.string.settings_lock_style
+        SettingsPage.Entries -> Res.string.settings_entries
         SettingsPage.Sync -> Res.string.settings_sync
         SettingsPage.Appearance -> Res.string.settings_appearance
         SettingsPage.Window -> Res.string.settings_window_section
@@ -212,6 +211,7 @@ private val SettingsPage.icon: ImageVector
     get() = when (this) {
         SettingsPage.Lock -> Icons.Outlined.Lock
         SettingsPage.LockScreen -> Icons.Outlined.BlurOn
+        SettingsPage.Entries -> Icons.Outlined.Description
         SettingsPage.Sync -> Icons.Outlined.Key
         SettingsPage.Appearance -> Icons.Outlined.Palette
         SettingsPage.Window -> Icons.Outlined.DesktopWindows

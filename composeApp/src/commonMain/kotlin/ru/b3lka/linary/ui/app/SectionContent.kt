@@ -97,6 +97,7 @@ internal fun SectionContent(state: AppState) {
                 modifier = Modifier.weight(1f).background(colors.surface),
                 onDelete = editor.original?.let { entry -> { editing.requestDelete(entry) } },
                 tags = EditorTagSource(state.diary?.tags.orEmpty()) { change -> editing.saveTag(change) },
+                templates = state.diary?.templates.orEmpty(),
             )
         } else {
             EntryDetail(

@@ -48,6 +48,11 @@ class AppState(
         private set
     var query by mutableStateOf("")
     var tagFilter by mutableStateOf<Long?>(null)
+
+    /**
+     * Шаблон новой записи (id из [Diary.templates]); null — пустая запись.
+     */
+    var defaultTemplateId by mutableStateOf<Long?>(null)
     var viewer by mutableStateOf<ViewerState?>(null)
 
     /**

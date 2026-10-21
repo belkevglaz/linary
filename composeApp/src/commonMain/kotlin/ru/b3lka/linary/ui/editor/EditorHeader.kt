@@ -47,6 +47,7 @@ internal fun EditorHeader(
     onSave: () -> Unit,
     onClose: () -> Unit,
     onInsertTime: () -> Unit,
+    onPickTemplate: (() -> Unit)?,
     onDelete: (() -> Unit)?,
     tags: EditorTagSource?,
 ) {
@@ -77,7 +78,7 @@ internal fun EditorHeader(
             RatingBar(session.rating, onChange = { session.rating = it })
             Spacer(Modifier.width(16.dp))
             SaveButton(saving, onSave)
-            EditorMenu(onInsertTime, onDelete)
+            EditorMenu(onInsertTime, onPickTemplate, onDelete)
         }
     }
 }

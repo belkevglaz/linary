@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +39,9 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import ru.b3lka.linary.core.repository.DiaryLoadException
 import ru.b3lka.linary.core.repository.DiaryRepository
+import ru.b3lka.linary.presentation.editor.DefaultTemplateState
 import ru.b3lka.linary.presentation.editor.ShortcutKeys
+import ru.b3lka.linary.presentation.editor.TemplatePreferences
 import ru.b3lka.linary.presentation.layout.ListPanePreferences
 import ru.b3lka.linary.presentation.layout.ListPaneState
 import ru.b3lka.linary.presentation.lock.LockController
@@ -51,11 +54,14 @@ import ru.b3lka.linary.presentation.platform.PlatformServices
 import ru.b3lka.linary.presentation.state.AppState
 import ru.b3lka.linary.presentation.state.Section
 import ru.b3lka.linary.presentation.sync.SyncKeySettings
+import ru.b3lka.linary.presentation.theme.ThemeMode
+import ru.b3lka.linary.presentation.theme.ThemeSettings
 import ru.b3lka.linary.presentation.window.WindowBehavior
 import ru.b3lka.linary.resources.Res
 import ru.b3lka.linary.resources.media_save_title
 import ru.b3lka.linary.ui.common.LocalAppLocked
 import ru.b3lka.linary.ui.common.LocalDateFormatter
+import ru.b3lka.linary.ui.common.LocalDefaultTemplate
 import ru.b3lka.linary.ui.common.LocalListPane
 import ru.b3lka.linary.ui.common.LocalMediaActions
 import ru.b3lka.linary.ui.common.LocalMediaCache
@@ -79,6 +85,7 @@ private const val TODAY_CHECK_MS = 60_000L
  * @param lock блокировка; создаёт её вызывающий, чтобы `Ctrl+L` работал на уровне окна при любом фокусе.
  * @param windowBehavior настройки окна и трея; null — платформа их не поддерживает.
  * @param syncKeys ключ синхронизации пользователя; null — платформа не открывает папки синхронизации.
+ * @param systemDark тёмная ли тема системы (для [ThemeMode.System]); null — неизвестно.
  */
 @Composable
 fun App(
@@ -87,14 +94,16 @@ fun App(
     lock: LockController,
     photoPreferences: PhotoStripPreferences,
     listPanePreferences: ListPanePreferences,
+    templatePreferences: TemplatePreferences,
     windowBehavior: WindowBehavior?,
     syncKeys: SyncKeySettings?,
-    dark: Boolean,
-    onToggleDark: () -> Unit,
+    theme: ThemeSettings,
+    systemDark: Boolean?,
     onChooseSource: () -> Unit,
 ) {
     val photoStrip = remember(photoPreferences) { PhotoStripState(photoPreferences) }
     val listPane = remember(listPanePreferences) { ListPaneState(listPanePreferences) }
+    val defaultTemplate = remember(templatePreferences) { DefaultTemplateState(templatePreferences) }
     LaunchedEffect(lock.locked) {
         if (lock.locked && lock.collapsePhotos) photoStrip.collapse()
     }
@@ -104,17 +113,18 @@ fun App(
             lock.tick()
         }
     }
-    LinaryTheme(dark) {
+    LinaryTheme(theme.isDark(systemDark)) {
         CompositionLocalProvider(
             LocalDateFormatter provides rememberDateFormatter(),
             LocalAppLocked provides lock.locked,
             LocalPhotoStrip provides photoStrip,
             LocalListPane provides listPane,
+            LocalDefaultTemplate provides defaultTemplate,
         ) {
             Box(Modifier.fillMaxSize().trackActivity(lock::onActivity)) {
                 val blur = if (lock.locked && lock.style == LockStyle.Blurred) lock.blurRadius.dp else 0.dp
                 Box(if (blur > 0.dp) Modifier.blur(blur) else Modifier) {
-                    AppContent(repository, platform, lock, windowBehavior, syncKeys, dark, onToggleDark, onChooseSource)
+                    AppContent(repository, platform, lock, windowBehavior, syncKeys, theme, systemDark, onChooseSource)
                 }
                 if (lock.locked) LockScreen(lock)
             }
@@ -129,8 +139,8 @@ private fun AppContent(
     lock: LockController,
     windowBehavior: WindowBehavior?,
     syncKeys: SyncKeySettings?,
-    dark: Boolean,
-    onToggleDark: () -> Unit,
+    theme: ThemeSettings,
+    systemDark: Boolean?,
     onChooseSource: () -> Unit,
 ) {
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
@@ -149,7 +159,7 @@ private fun AppContent(
                 LocalPlatform provides platform,
                 LocalUriHandler provides uriHandler,
             ) {
-                DiaryScreen(repository, lock, windowBehavior, syncKeys, dark, onToggleDark, onChooseSource)
+                DiaryScreen(repository, lock, windowBehavior, syncKeys, theme, systemDark, onChooseSource)
             }
         }
     }
@@ -161,8 +171,8 @@ private fun DiaryScreen(
     lock: LockController,
     windowBehavior: WindowBehavior?,
     syncKeys: SyncKeySettings?,
-    dark: Boolean,
-    onToggleDark: () -> Unit,
+    theme: ThemeSettings,
+    systemDark: Boolean?,
     onChooseSource: () -> Unit,
 ) {
     val state = remember(repository) { AppState(repository) }
@@ -173,6 +183,8 @@ private fun DiaryScreen(
     LaunchedEffect(repository) { repository.externalChanges.collect { state.onExternalChange() } }
     LaunchedEffect(state.externalChangePending, state.editing.editor, state.editing.saving) { state.reloadIfIdle() }
     KeepTodayCurrent(state)
+    val defaultTemplate = LocalDefaultTemplate.current
+    SideEffect { state.defaultTemplateId = defaultTemplate?.id }
 
     val cache = LocalMediaCache.current
     val platform = LocalPlatform.current
@@ -206,9 +218,8 @@ private fun DiaryScreen(
                         state.section = it
                         settingsOpen = false
                     },
-                    dark = dark,
-                    onToggleDark = onToggleDark,
                     onOpenSettings = { settingsOpen = true },
+                    onQuit = windowBehavior?.quit,
                     settingsOpen = settingsOpen,
                 )
                 // Настройки ложатся поверх раздела, не убирая его: открытый редактор сохраняет свой текст
@@ -222,8 +233,10 @@ private fun DiaryScreen(
                             window = windowBehavior,
                             syncKeys = syncKeys,
                             onSyncKeyChanged = reload,
-                            dark = dark,
-                            onToggleDark = onToggleDark,
+                            templates = state.diary?.templates.orEmpty(),
+                            defaultTemplate = defaultTemplate,
+                            theme = theme,
+                            systemDark = systemDark,
                             appVersion = platform.appVersion,
                             onOpenUrl = platform::openUrl,
                             onClose = { settingsOpen = false },

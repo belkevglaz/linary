@@ -34,6 +34,8 @@ backups of your diary (see [Safety](#safety)).
 - **Editor** close to the phone app:
   - rich text — bold, italic, underline, strikethrough, lists, text and highlight colors, links;
   - rating, tags (the tag button in the editor header, with "New tag…"), "Insert time" (`Ctrl+T`), undo/redo;
+  - an entry heading above the text, and diary templates: "⋮" → "Template…" inserts one; Settings → Entries sets
+    the template a new entry starts with;
   - several entries per day, new entries, deleting with confirmation.
 - **Photos**: add from files, paste a screenshot with `Ctrl+V` or drag and drop. Images are resized
   and saved as JPEG the same way the phone does it. Reorder photos, make one the day cover (the
@@ -43,7 +45,7 @@ backups of your diary (see [Safety](#safety)).
 - Keyboard shortcuts work with both Latin and Cyrillic keyboard layouts.
 - **Lock screen**: optionally locks the app after a chosen idle time and at start; unlocks with a PIN.
 - **Tray icon**; closing the window keeps the app running in the tray. Only one copy runs at a time.
-- English and Russian UI, light and dark theme, remembered window size and position.
+- English and Russian UI, light and dark theme (or following the system theme), remembered window size and position.
 
 ## Requirements
 
@@ -182,7 +184,7 @@ Hover over any icon button for two seconds to see what it does.
 
 By default the app shows an icon in the system tray, and closing the window (the close button or `Alt+F4`)
 hides it to the tray instead of quitting; click the icon to bring the window back. Without the tray icon the
-window is minimized instead. To quit, press `Ctrl+Q`, choose **Quit** in the tray menu or in Settings. Both
+window is minimized instead. To quit, press `Ctrl+Q`, choose **Quit** in the tray menu or click the quit button at the bottom of the side panel. Both
 behaviors can be changed in **Settings → Window**. The icon uses the StatusNotifierItem protocol (D-Bus), so
 it looks native in KDE Plasma, XFCE, Cinnamon, LXQt and others; GNOME needs the "AppIndicator and
 KStatusNotifierItem Support" extension.
@@ -238,7 +240,8 @@ a crash are removed on the next start.
 
 In **Settings → Lock** (the gear button at the bottom of the side panel) you can turn on **Lock when idle**,
 choose the idle time (1–60 minutes) and set a 4–8 digit PIN. With the lock on, the app starts locked and
-locks again when you do nothing for that long; `Ctrl+L` locks it at once. After five wrong PINs the
+locks again when you do nothing for that long; `Ctrl+L` locks it at once. Closing the window to the tray or the
+taskbar locks it immediately too (this can be turned off). After five wrong PINs the
 next try is possible only in 30 seconds.
 In **Settings → Lock screen** the lock screen can be **solid** or **blurred**: the app stays visible behind it, blurred as
 strongly as you choose. By default the attachments strip is collapsed and a full-screen photo is closed
@@ -262,8 +265,8 @@ The app then starts unlocked, with the lock turned off. Your other settings and 
 - E2EE sync is not supported.
 - Only tested with Dropbox. Other cloud providers that sync the same folder to disk may work but
   are untested.
-- Editing covers text, rating, photos and tags. Values of tracking tags, headings, location and templates
-  are shown but not editable.
+- Editing covers the heading, text, rating, photos and tags; diary templates can be inserted. Values of tracking
+  tags and location are shown but not editable, and templates themselves are created in Diarium on the phone.
 - On Wayland the window manager may ignore the saved window position (the size is still restored).
 
 ## License

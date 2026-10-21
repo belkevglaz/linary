@@ -46,6 +46,12 @@ class LockController(
         private set
 
     /**
+     * Блокировать сразу при закрытии окна, не дожидаясь бездействия.
+     */
+    var lockOnClose by mutableStateOf(prefs.lockOnClose)
+        private set
+
+    /**
      * Сколько секунд ждать до следующей попытки ввода PIN (0 — можно вводить).
      */
     var retryAfterSeconds by mutableStateOf(0L)
@@ -73,6 +79,13 @@ class LockController(
 
     fun lockNow() {
         if (enabled) locked = true
+    }
+
+    /**
+     * Окно закрыли, а приложение осталось работать (в трее или свёрнутым): блокирует, если так настроено.
+     */
+    fun onWindowClosed() {
+        if (lockOnClose) lockNow()
     }
 
     fun unlock(pin: String): UnlockResult {
@@ -141,6 +154,11 @@ class LockController(
     fun changeBlurRadius(radius: Int) {
         blurRadius = radius.coerceIn(MIN_BLUR, MAX_BLUR)
         prefs.lockBlurRadius = blurRadius
+    }
+
+    fun changeLockOnClose(value: Boolean) {
+        lockOnClose = value
+        prefs.lockOnClose = value
     }
 
     fun changeCollapsePhotos(value: Boolean) {

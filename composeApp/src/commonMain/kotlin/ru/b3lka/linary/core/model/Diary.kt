@@ -8,6 +8,7 @@ import kotlinx.datetime.LocalDate
 class Diary(
     entries: List<DiaryEntry>,
     val tags: List<DiaryTag>,
+    val templates: List<DiaryTemplate> = emptyList(),
 ) {
     /**
      * Записи от новых к старым.

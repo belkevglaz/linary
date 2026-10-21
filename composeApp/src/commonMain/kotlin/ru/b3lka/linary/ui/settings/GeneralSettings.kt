@@ -8,7 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import ru.b3lka.linary.presentation.theme.ThemeMode
+import ru.b3lka.linary.presentation.theme.ThemeSettings
 import ru.b3lka.linary.presentation.window.WindowBehavior
 import ru.b3lka.linary.resources.Res
 import ru.b3lka.linary.resources.app_name
@@ -16,6 +19,8 @@ import ru.b3lka.linary.resources.settings_close_hint
 import ru.b3lka.linary.resources.settings_close_keeps_running
 import ru.b3lka.linary.resources.settings_close_section
 import ru.b3lka.linary.resources.settings_theme
+import ru.b3lka.linary.resources.settings_theme_system_hint
+import ru.b3lka.linary.resources.settings_theme_system_unknown
 import ru.b3lka.linary.resources.settings_tray
 import ru.b3lka.linary.resources.settings_tray_section
 import ru.b3lka.linary.resources.settings_tray_unsupported
@@ -23,29 +28,44 @@ import ru.b3lka.linary.resources.settings_version
 import ru.b3lka.linary.resources.settings_version_dev
 import ru.b3lka.linary.resources.theme_dark
 import ru.b3lka.linary.resources.theme_light
+import ru.b3lka.linary.resources.theme_system
 
 private const val PROJECT_URL = "https://github.com/belkevglaz/linary"
 
 /**
- * Страница «Оформление»: светлая или тёмная тема.
+ * Страница «Оформление»: тема как в системе, светлая или тёмная.
+ *
+ * @param systemDark тёмная ли тема системы; null — система её не сообщает.
  */
 @Composable
-internal fun AppearancePage(dark: Boolean, onToggleDark: () -> Unit) {
+internal fun AppearancePage(theme: ThemeSettings, systemDark: Boolean?) {
     SettingsGroup(stringResource(Res.string.settings_theme)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = !dark,
-                onClick = { if (dark) onToggleDark() },
-                label = { Text(stringResource(Res.string.theme_light)) },
-            )
-            FilterChip(
-                selected = dark,
-                onClick = { if (!dark) onToggleDark() },
-                label = { Text(stringResource(Res.string.theme_dark)) },
-            )
+            ThemeMode.entries.forEach { mode ->
+                FilterChip(
+                    selected = theme.mode == mode,
+                    onClick = { theme.change(mode) },
+                    label = { Text(stringResource(mode.title)) },
+                )
+            }
+        }
+        if (theme.mode == ThemeMode.System) {
+            val hint = if (systemDark == null) {
+                Res.string.settings_theme_system_unknown
+            } else {
+                Res.string.settings_theme_system_hint
+            }
+            Hint(stringResource(hint))
         }
     }
 }
+
+private val ThemeMode.title: StringResource
+    get() = when (this) {
+        ThemeMode.System -> Res.string.theme_system
+        ThemeMode.Light -> Res.string.theme_light
+        ThemeMode.Dark -> Res.string.theme_dark
+    }
 
 /**
  * Страница «Окно»: значок в трее и что делает закрытие окна.

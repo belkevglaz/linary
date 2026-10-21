@@ -17,6 +17,11 @@ interface LockPreferences {
      * Сворачивать ленту вложений и закрывать просмотр фото при блокировке.
      */
     var lockCollapsePhotos: Boolean
+
+    /**
+     * Блокировать сразу, когда окно закрывают крестиком (а приложение остаётся работать).
+     */
+    var lockOnClose: Boolean
     val hasPin: Boolean
 
     fun setPin(pin: String)

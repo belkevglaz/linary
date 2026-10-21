@@ -29,6 +29,8 @@ import ru.b3lka.linary.resources.settings_lock_collapse_photos
 import ru.b3lka.linary.resources.settings_lock_enable
 import ru.b3lka.linary.resources.settings_lock_hint
 import ru.b3lka.linary.resources.settings_lock_now
+import ru.b3lka.linary.resources.settings_lock_on_close
+import ru.b3lka.linary.resources.settings_lock_on_close_hint
 import ru.b3lka.linary.resources.settings_lock_screen_hint
 import ru.b3lka.linary.resources.settings_lock_section
 import ru.b3lka.linary.resources.settings_lock_style
@@ -42,7 +44,7 @@ import kotlin.math.roundToInt
 private enum class PinAction { Enable, Disable, Change }
 
 /**
- * Страница «Блокировка»: включение, время бездействия, PIN.
+ * Страница «Блокировка»: включение, время бездействия, блокировка при закрытии окна, PIN.
  *
  * @param onLockNow заблокировать сразу (страница настроек при этом закрывается).
  */
@@ -67,6 +69,10 @@ internal fun LockPage(lock: LockController, onLockNow: () -> Unit) {
                     )
                 }
             }
+            SwitchRow(stringResource(Res.string.settings_lock_on_close), lock.lockOnClose) {
+                lock.changeLockOnClose(it)
+            }
+            Hint(stringResource(Res.string.settings_lock_on_close_hint))
         }
         SettingsGroup(stringResource(Res.string.settings_pin_section)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

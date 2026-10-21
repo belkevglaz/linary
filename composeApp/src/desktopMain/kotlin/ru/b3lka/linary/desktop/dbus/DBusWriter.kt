@@ -1,4 +1,4 @@
-package ru.b3lka.linary.desktop.tray.dbus
+package ru.b3lka.linary.desktop.dbus
 
 /**
  * Запись значений D-Bus (little-endian) с выравниванием по правилам протокола.
