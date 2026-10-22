@@ -8,7 +8,7 @@
 Сборка на GitHub проверит, что версия в теге, gradle.properties и здесь совпадает.
 -->
 
-## 2.2.0 — not released yet
+## 2.2.0 — 2026-10-22
 
 - Photo thumbnails in the editor and in the entry view are easy to browse when a day has many of them:
   the mouse wheel scrolls the strip sideways, and arrow buttons at its edges page through it.
